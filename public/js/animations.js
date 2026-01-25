@@ -247,6 +247,7 @@ async function initLiveCompetitorMap(auditData) {
  * Step 2: Google Profile data with photo gallery
  */
 function showGoogleProfile(placeData = null) {
+    console.log('📸 Step 2: showGoogleProfile called', placeData ? 'with data' : 'NO DATA');
     const visualDiv = document.getElementById('visual-feedback');
 
     // Get photos from placeData if available (already converted to URLs by backend)
@@ -412,6 +413,7 @@ function showGoogleProfile(placeData = null) {
  * Step 3: Review bubbles with realistic flow
  */
 function showReviewBubbles(realReviews = null) {
+    console.log('⭐ Step 3: showReviewBubbles called', realReviews ? `with ${realReviews.length} reviews` : 'NO REVIEWS');
     const visualDiv = document.getElementById('visual-feedback');
 
     // Use real reviews if available, otherwise fallback to dummy data
@@ -802,7 +804,7 @@ function showMobilePreview(auditData = null) {
                         <div class="phone-notch"></div>
                         <div class="phone-screen">
                             ${mobileScreenshot ? (
-                                typeof mobileScreenshot === 'object' && mobileScreenshot.type === 'iframe' ? `
+            typeof mobileScreenshot === 'object' && mobileScreenshot.type === 'iframe' ? `
                                     <div class="mobile-iframe-container" ${mobileScreenshot.ogImage ? 'data-has-fallback="true"' : ''}>
                                         ${mobileScreenshot.ogImage ? `
                                             <img src="${mobileScreenshot.ogImage}" 
@@ -820,7 +822,7 @@ function showMobilePreview(auditData = null) {
                                 ` : `
                                     <img src="${mobileScreenshot}" alt="Mobile Website" class="mobile-screenshot-img" />
                                 `
-                            ) : `
+        ) : `
                                 <div class="screen-content">
                                     <div class="mock-header"></div>
                                     <div class="mock-button"></div>
@@ -1020,6 +1022,7 @@ function showMobilePreview(auditData = null) {
  * Step 6: Social Media Feeds
  */
 function showSocialMediaFeeds() {
+    console.log('📱 Step 6: showSocialMediaFeeds called');
     const visualDiv = document.getElementById('visual-feedback');
     visualDiv.innerHTML = `
         <div class="animation-container">
@@ -1088,6 +1091,7 @@ function showSocialMediaFeeds() {
  * Step 7: Final calculation with Matrix effect
  */
 function showFinalCalculation() {
+    console.log('🎯 Step 7: showFinalCalculation called');
     const visualDiv = document.getElementById('visual-feedback');
     visualDiv.innerHTML = `
         <div class="animation-container">
