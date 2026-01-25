@@ -14,9 +14,11 @@ coverage/
 .vscode/
 .idea/
 
-# PDF fájlok és képek (ha dinamikusan generálódnak)
+# PDF fájlok és képek (dinamikusan generálódnak)
 pdfs/*.pdf
+!pdfs/.gitkeep
 screenshots/*.png
+!screenshots/.gitkeep
 
 # Adatbázis fájlok
 *.sqlite
