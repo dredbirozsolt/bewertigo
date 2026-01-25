@@ -114,9 +114,11 @@ class GooglePlacesService {
 
     /**
      * Get photo URL
+     * Use frontend API key for browser-side requests (HTTP referrer restriction)
      */
     getPhotoUrl(photoReference, maxWidth = 800) {
-        return `${this.baseUrl}/photo?maxwidth=${maxWidth}&photo_reference=${photoReference}&key=${this.apiKey}`;
+        const frontendKey = process.env.GOOGLE_MAPS_API_KEY || this.apiKey;
+        return `${this.baseUrl}/photo?maxwidth=${maxWidth}&photo_reference=${photoReference}&key=${frontendKey}`;
     }
 
     /**
