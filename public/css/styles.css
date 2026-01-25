@@ -1905,3 +1905,38 @@ body {
     display: block;
     animation: screenshot-fade-in 0.8s ease-out;
 }
+
+/* Iframe container for website preview */
+.iframe-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.website-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* OG Image fallback when iframe fails to load */
+.og-image-fallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    z-index: 1;
+}
+
+/* Show OG image on iframe error (Safari CSP fallback) */
+.iframe-container iframe:not([src]) + .og-image-fallback,
+.iframe-container iframe[src=""] + .og-image-fallback {
+    display: block;
+}
