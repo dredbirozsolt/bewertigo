@@ -1836,11 +1836,7 @@ body {
 
 .screenshot-device {
     position: relative;
-    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    background: #1f2937;
-    padding: 10px;
 }
 
 .screenshot-device.desktop {
@@ -1855,9 +1851,9 @@ body {
 
 .screenshot-label {
     text-align: center;
-    color: #9ca3af;
-    font-size: 0.85rem;
-    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
     margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
