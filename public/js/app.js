@@ -470,16 +470,20 @@ async function showResults() {
             showNoWebsiteAlert();
         }
 
+        // Always render detailed results (including competitor map)
+        renderDetailedResults(audit);
+
         // Show/hide unlock CTA based on unlock status
         if (audit.isUnlocked) {
             document.getElementById('unlock-cta').style.display = 'none';
             document.getElementById('modules-grid').classList.remove('blurred');
-
-            // Show detailed results
-            renderDetailedResults(audit);
+            // Remove blur from detailed results
+            document.getElementById('detailed-results').classList.remove('blurred');
         } else {
             document.getElementById('unlock-cta').style.display = 'block';
             document.getElementById('modules-grid').classList.add('blurred');
+            // Keep detailed results blurred until unlock
+            document.getElementById('detailed-results').classList.add('blurred');
         }
 
     } catch (error) {
@@ -835,7 +839,7 @@ function renderDetailedResults(audit) {
 
     detailedDiv.innerHTML = html;
     detailedDiv.style.display = 'block';
-    detailedDiv.classList.remove('blurred');
+    // Don't remove blur here - it's controlled by showResults based on unlock status
 
     // Initialize competitor map if available
     if (audit.rawData?.placeDetails?.location && audit.rawData?.competitors?.length > 0) {
@@ -1043,8 +1047,14 @@ async function submitLead(event) {
         closeLeadForm();
         document.getElementById('unlock-cta').style.display = 'none';
         document.getElementById('modules-grid').classList.remove('blurred');
+        
+        // Remove blur from detailed results
+        const detailedDiv = document.getElementById('detailed-results');
+        if (detailedDiv) {
+            detailedDiv.classList.remove('blurred');
+        }
 
-        // Show detailed results
+        // Refresh detailed results with unlocked data
         if (data.audit) {
             renderDetailedResults(data.audit);
         }
