@@ -353,10 +353,10 @@ async function fetchAuditDataForAnimation(step) {
 
         if (data.success && data.audit) {
             const screenshot = data.audit.rawData?.websiteScreenshot;
-            const screenshotPreview = screenshot 
+            const screenshotPreview = screenshot
                 ? (typeof screenshot === 'string' ? screenshot.substring(0, 50) + '...' : 'iframe-object')
                 : 'none';
-                
+
             console.log(`📊 Fetched audit data for step ${step}:`, {
                 hasRawData: !!data.audit.rawData,
                 hasScreenshot: !!screenshot,

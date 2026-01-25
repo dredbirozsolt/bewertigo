@@ -22,19 +22,19 @@ class ScreenshotService {
             });
 
             const html = response.data;
-            
+
             // Try to find og:image meta tag
             const ogImageMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
-                                html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
-            
+                html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
+
             if (ogImageMatch && ogImageMatch[1]) {
                 return ogImageMatch[1];
             }
 
             // Fallback: try twitter:image
             const twitterImageMatch = html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i) ||
-                                     html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i);
-            
+                html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i);
+
             if (twitterImageMatch && twitterImageMatch[1]) {
                 return twitterImageMatch[1];
             }
@@ -55,7 +55,7 @@ class ScreenshotService {
     async takeScreenshot(url, options = {}) {
         try {
             console.log(`📸 Generating preview for ${url}...`);
-            
+
             // Get Open Graph image as fallback
             const ogImage = await this.getOpenGraphImage(url);
 
@@ -84,7 +84,7 @@ class ScreenshotService {
     async takeMultipleScreenshots(url) {
         try {
             const preview = await this.takeScreenshot(url);
-            
+
             return {
                 desktop: preview,
                 mobile: preview // Same preview for both

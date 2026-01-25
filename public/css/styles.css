@@ -1936,7 +1936,7 @@ body {
 }
 
 /* Show OG image on iframe error (Safari CSP fallback) */
-.iframe-container iframe:not([src]) + .og-image-fallback,
-.iframe-container iframe[src=""] + .og-image-fallback {
+.iframe-container iframe:not([src])+.og-image-fallback,
+.iframe-container iframe[src=""]+.og-image-fallback {
     display: block;
 }

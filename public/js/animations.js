@@ -621,7 +621,7 @@ function showWebsiteSpeed(auditData = null) {
     console.log('📸 Desktop screenshot found:', desktopScreenshot ? 'YES' : 'NO');
 
     if (desktopScreenshot) {
-        const preview = typeof desktopScreenshot === 'string' 
+        const preview = typeof desktopScreenshot === 'string'
             ? desktopScreenshot.substring(0, 50) + '...'
             : 'iframe-object';
         console.log('📸 Desktop screenshot preview:', preview);
@@ -801,7 +801,7 @@ function showMobilePreview(auditData = null) {
                         <div class="phone-notch"></div>
                         <div class="phone-screen">
                             ${mobileScreenshot ? (
-                                typeof mobileScreenshot === 'object' && mobileScreenshot.type === 'iframe' ? `
+            typeof mobileScreenshot === 'object' && mobileScreenshot.type === 'iframe' ? `
                                     <div class="mobile-iframe-container">
                                         ${mobileScreenshot.ogImage ? `
                                             <img src="${mobileScreenshot.ogImage}" 
@@ -818,7 +818,7 @@ function showMobilePreview(auditData = null) {
                                 ` : `
                                     <img src="${mobileScreenshot}" alt="Mobile Website" class="mobile-screenshot-img" />
                                 `
-                            ) : `
+        ) : `
                                 <div class="screen-content">
                                     <div class="mock-header"></div>
                                     <div class="mock-button"></div>

@@ -30,7 +30,7 @@ router.get('/proxy', async (req, res) => {
 
     } catch (error) {
         console.error('Photo proxy error:', error.message);
-        
+
         // Send a transparent 1x1 pixel PNG as fallback
         const transparentPng = Buffer.from(
             'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
