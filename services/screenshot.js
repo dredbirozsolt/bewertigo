@@ -1,72 +1,49 @@
-const puppeteer = require('puppeteer-core');
+const axios = require('axios');
 const { RETRY_CONFIG } = require('../config/constants');
 
 class ScreenshotService {
     constructor() {
-        this.browser = null;
+        // No browser needed - we'll use iframe or Open Graph images
     }
 
     /**
-     * Initialize browser instance (reusable)
+     * Get Open Graph image from website
+     * @param {string} url - Website URL
+     * @returns {Promise<string|null>} Open Graph image URL or null
      */
-    async initBrowser() {
-        if (!this.browser) {
-            const os = require('os');
-            const fs = require('fs');
-            const platform = os.platform();
+    async getOpenGraphImage(url) {
+        try {
+            const response = await axios.get(url, {
+                timeout: 10000,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (compatible; BewerigoBot/1.0; +https://bewertigo.dmf.n4.ininet.hu)'
+                },
+                maxRedirects: 5
+            });
 
-            const launchOptions = {
-                headless: 'new',
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-accelerated-2d-canvas',
-                    '--disable-gpu',
-                    '--disable-software-rasterizer',
-                    '--disable-extensions',
-                    '--disable-background-networking',
-                    '--disable-default-apps',
-                    '--disable-sync',
-                    '--metrics-recording-only',
-                    '--mute-audio',
-                    '--no-first-run',
-                    '--safebrowsing-disable-auto-update',
-                    '--disable-crash-reporter',
-                    '--disable-breakpad'
-                ]
-            };
-
-            // Try to find Chrome/Chromium
-            const chromePaths = [
-                process.env.CHROME_PATH,
-                process.env.PUPPETEER_EXECUTABLE_PATH,
-                // Linux/Server paths
-                '/usr/bin/chromium-browser',
-                '/usr/bin/chromium',
-                '/usr/bin/google-chrome',
-                '/usr/bin/google-chrome-stable',
-                // macOS paths
-                '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-                '/Applications/Chromium.app/Contents/MacOS/Chromium',
-                '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
-            ].filter(Boolean);
-
-            for (const path of chromePaths) {
-                if (fs.existsSync(path)) {
-                    launchOptions.executablePath = path;
-                    console.log(`✅ Using browser at ${path}`);
-                    break;
-                }
+            const html = response.data;
+            
+            // Try to find og:image meta tag
+            const ogImageMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
+                                html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
+            
+            if (ogImageMatch && ogImageMatch[1]) {
+                return ogImageMatch[1];
             }
 
-            if (!launchOptions.executablePath) {
-                throw new Error('Chrome/Chromium not found. Set CHROME_PATH or PUPPETEER_EXECUTABLE_PATH environment variable.');
+            // Fallback: try twitter:image
+            const twitterImageMatch = html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i) ||
+                                     html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i);
+            
+            if (twitterImageMatch && twitterImageMatch[1]) {
+                return twitterImageMatch[1];
             }
 
-            this.browser = await puppeteer.launch(launchOptions);
+            return null;
+        } catch (error) {
+            console.error('Error fetching Open Graph image:', error.message);
+            return null;
         }
-        return this.browser;
     }
 
     /**
@@ -90,87 +67,64 @@ class ScreenshotService {
             console.log(`📸 Taking screenshot of ${url}...`);
 
             const browser = await this.initBrowser();
-            page = await browser.newPage();
 
-            // Set viewport
-            await page.setViewport({
-                width,
-                height,
-                deviceScaleFactor: 1
-            });
+    /**
+     * Get website preview data (URL for iframe + Open Graph image as fallback)
+     * @param {string} url - Website URL
+     * @param {object} options - Options
+     * @returns {Promise<object>} Preview data with URL and OG image
+     */
+    async takeScreenshot(url, options = {}) {
+        try {
+            // Get Open Graph image as fallback
+            const ogImage = await this.getOpenGraphImage(url);
 
-            // Set reasonable timeout
-            await page.setDefaultNavigationTimeout(timeout);
-            await page.setDefaultTimeout(timeout);
-
-            // Navigate to URL
-            await page.goto(url, {
-                waitUntil: 'networkidle2', // Wait until network is mostly idle
-                timeout
-            });
-
-            // Optional: Wait for specific selector
-            if (waitForSelector) {
-                await page.waitForSelector(waitForSelector, { timeout: 5000 }).catch(() => {
-                    console.warn(`Selector ${waitForSelector} not found, continuing anyway`);
-                });
-            }
-
-            // Take screenshot
-            const screenshot = await page.screenshot({
-                type: 'jpeg',
-                quality: 50, // Lower quality for smaller file size
-                fullPage,
-                encoding: 'base64'
-            });
-
-            console.log(`✅ Screenshot captured successfully (${Math.round(screenshot.length / 1024)}KB)`);
-
-            // Return as data URL
-            return `data:image/jpeg;base64,${screenshot}`;
-
+            return {
+                type: 'iframe', // Use iframe for live preview
+                url: url,
+                ogImage: ogImage, // Fallback if iframe is blocked
+                hasScreenshot: true // Mark as available
+            };
         } catch (error) {
-            console.error('❌ Screenshot error:', error.message);
-            return null;
-        } finally {
-            // Close page but keep browser open for reuse
-            if (page) {
-                await page.close().catch(() => { });
-            }
+            console.error('❌ Preview generation error:', error.message);
+            return {
+                type: 'none',
+                url: url,
+                ogImage: null,
+                hasScreenshot: false
+            };
         }
     }
 
     /**
      * Take both desktop and mobile screenshots
      * @param {string} url - Website URL
-     * @returns {Promise<object>} Object with desktop and mobile screenshots
+     * @returns {Promise<object>} Object with desktop and mobile preview data
      */
     async takeMultipleScreenshots(url) {
         try {
-            const [desktop, mobile] = await Promise.all([
-                this.takeScreenshot(url, {
-                    width: 1280,
-                    height: 800,
-                    fullPage: false
-                }),
-                this.takeScreenshot(url, {
-                    width: 375,
-                    height: 667,
-                    fullPage: false
-                })
-            ]);
-
-            return { desktop, mobile };
+            const preview = await this.takeScreenshot(url);
+            
+            return {
+                desktop: preview,
+                mobile: preview // Same preview for both
+            };
         } catch (error) {
             console.error('❌ Multiple screenshots error:', error.message);
-            return { desktop: null, mobile: null };
+            return {
+                desktop: { type: 'none', url: url, ogImage: null, hasScreenshot: false },
+                mobile: { type: 'none', url: url, ogImage: null, hasScreenshot: false }
+            };
         }
     }
 
     /**
-     * Close browser instance
+     * Close browser instance (no-op since we don't use browser)
      */
     async closeBrowser() {
+        // No browser to close
+        return Promise.resolve();
+    }
         if (this.browser) {
             try {
                 await this.browser.close();

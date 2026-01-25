@@ -626,17 +626,41 @@ function showWebsiteSpeed(auditData = null) {
 
     let screenshotHtml = '';
     if (desktopScreenshot) {
-        screenshotHtml = `
-            <div class="website-screenshot-preview">
-                <div class="screenshot-device desktop">
-                    <div class="screenshot-label">💻 Desktop</div>
-                    <img src="${desktopScreenshot}" alt="Desktop Screenshot" class="screenshot-loading" />
-                    <div class="screenshot-overlay">
-                        <div class="scanner-line-horizontal"></div>
+        // Check if it's an iframe-based preview (object with URL)
+        if (typeof desktopScreenshot === 'object' && desktopScreenshot.type === 'iframe') {
+            screenshotHtml = `
+                <div class="website-screenshot-preview">
+                    <div class="screenshot-device desktop">
+                        <div class="screenshot-label">💻 Desktop Preview</div>
+                        <div class="iframe-container">
+                            <iframe src="${desktopScreenshot.url}" 
+                                    class="website-iframe"
+                                    sandbox="allow-same-origin allow-scripts"
+                                    loading="lazy"></iframe>
+                            ${desktopScreenshot.ogImage ? `
+                                <img src="${desktopScreenshot.ogImage}" 
+                                     alt="Website Preview" 
+                                     class="og-image-fallback" 
+                                     onerror="this.style.display='none'" />
+                            ` : ''}
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+        } else {
+            // Legacy base64 screenshot
+            screenshotHtml = `
+                <div class="website-screenshot-preview">
+                    <div class="screenshot-device desktop">
+                        <div class="screenshot-label">💻 Desktop</div>
+                        <img src="${desktopScreenshot}" alt="Desktop Screenshot" class="screenshot-loading" />
+                        <div class="screenshot-overlay">
+                            <div class="scanner-line-horizontal"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
     }
 
     visualDiv.innerHTML = `
@@ -661,6 +685,33 @@ function showWebsiteSpeed(auditData = null) {
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            background: #f5f5f5;
+            overflow: hidden;
+        }
+        .website-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: white;
+            transform: scale(0.8);
+            transform-origin: top left;
+            width: 125%;
+            height: 125%;
+        }
+        .og-image-fallback {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
         }
         .screenshot-loading {
             width: 100%;
@@ -744,9 +795,18 @@ function showMobilePreview(auditData = null) {
                     <div class="phone-frame">
                         <div class="phone-notch"></div>
                         <div class="phone-screen">
-                            ${mobileScreenshot ? `
-                                <img src="${mobileScreenshot}" alt="Mobile Website" class="mobile-screenshot-img" />
-                            ` : `
+                            ${mobileScreenshot ? (
+                                typeof mobileScreenshot === 'object' && mobileScreenshot.type === 'iframe' ? `
+                                    <div class="mobile-iframe-container">
+                                        <iframe src="${mobileScreenshot.url}" 
+                                                class="mobile-website-iframe"
+                                                sandbox="allow-same-origin allow-scripts"
+                                                loading="lazy"></iframe>
+                                    </div>
+                                ` : `
+                                    <img src="${mobileScreenshot}" alt="Mobile Website" class="mobile-screenshot-img" />
+                                `
+                            ) : `
                                 <div class="screen-content">
                                     <div class="mock-header"></div>
                                     <div class="mock-button"></div>
@@ -825,6 +885,19 @@ function showMobilePreview(auditData = null) {
             background: white;
             position: relative;
             overflow: hidden;
+        }
+        .mobile-iframe-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .mobile-website-iframe {
+            width: 375px;
+            height: 667px;
+            border: none;
+            display: block;
+            transform: scale(0.64);
+            transform-origin: top left;
         }
         .scanner-line {
             position: absolute;
