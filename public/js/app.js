@@ -845,13 +845,20 @@ function renderDetailedResults(audit) {
     if (audit.rawData?.placeDetails?.location && audit.rawData?.competitors?.length > 0) {
         loadGoogleMapsAPI()
             .then(() => {
+                // Wait for DOM to be ready and element to be available
                 setTimeout(() => {
+                    const mapDiv = document.getElementById('competitor-map');
+                    if (!mapDiv) {
+                        console.error('❌ Competitor map div not found in DOM');
+                        return;
+                    }
+                    console.log('✅ Initializing competitor map with', audit.rawData.competitors.length, 'competitors');
                     initCompetitorMap(
                         audit.rawData.placeDetails.location,
                         audit.businessName,
                         audit.rawData.competitors
                     );
-                }, 100);
+                }, 300); // Increased delay to ensure DOM is ready
             })
             .catch(err => {
                 console.error('Failed to load Google Maps:', err);
@@ -869,19 +876,29 @@ function renderDetailedResults(audit) {
  */
 function initCompetitorMap(businessLocation, businessName, competitors) {
     const mapDiv = document.getElementById('competitor-map');
-    if (!mapDiv || !window.google) return;
+    if (!mapDiv) {
+        console.error('❌ Map div not found');
+        return;
+    }
+    
+    if (!window.google) {
+        console.error('❌ Google Maps not loaded');
+        showMapFallback(mapDiv, businessName, competitors);
+        return;
+    }
 
-    // Create bounds to fit all markers
-    const bounds = new google.maps.LatLngBounds();
-    bounds.extend(businessLocation);
+    try {
+        // Create bounds to fit all markers
+        const bounds = new google.maps.LatLngBounds();
+        bounds.extend(businessLocation);
 
-    // Add competitor locations to bounds
-    competitors.forEach(competitor => {
-        bounds.extend(competitor.location);
-    });
+        // Add competitor locations to bounds
+        competitors.forEach(competitor => {
+            bounds.extend(competitor.location);
+        });
 
-    // Create map (without zoom/center, we'll fit bounds)
-    const map = new google.maps.Map(mapDiv, {
+        // Create map (without zoom/center, we'll fit bounds)
+        const map = new google.maps.Map(mapDiv, {
         styles: [
             { elementType: 'geometry', stylers: [{ color: '#f5f5f5' }] },
             { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
@@ -977,6 +994,37 @@ function initCompetitorMap(businessLocation, businessName, competitors) {
         const radar = document.querySelector('.radar-scanner');
         if (radar) radar.style.animation = 'radar-scan 3s ease-in-out';
     }, 500);
+    
+    } catch (error) {
+        console.error('❌ Error initializing competitor map:', error);
+        showMapFallback(mapDiv, businessName, competitors);
+    }
+}
+
+/**
+ * Show fallback when Google Maps fails to load
+ */
+function showMapFallback(mapDiv, businessName, competitors) {
+    mapDiv.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; text-align: center; border-radius: 8px;">
+            <div style="font-size: 3rem; margin-bottom: 20px;">🗺️</div>
+            <h3 style="margin: 0 0 15px 0; font-size: 1.5rem;">${businessName}</h3>
+            <p style="margin: 0 0 20px 0; opacity: 0.9;">Ihre nächsten ${competitors.length} Konkurrenten:</p>
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; width: 100%; max-width: 400px;">
+                ${competitors.map((comp, i) => `
+                    <div style="margin: 12px 0; text-align: left; padding: 10px; background: rgba(255,255,255,0.15); border-radius: 6px;">
+                        <div style="font-weight: 600;">${i + 1}. ${comp.name}</div>
+                        <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.9;">
+                            ⭐ ${comp.rating} • 📍 ${comp.distance} km
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <p style="margin-top: 20px; font-size: 0.85rem; opacity: 0.7;">
+                (Karte konnte nicht geladen werden)
+            </p>
+        </div>
+    `;
 }
 
 /**
