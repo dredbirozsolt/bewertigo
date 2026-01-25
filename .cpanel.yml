@@ -1,10 +1,7 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/dmf/public_html/bewertigo
+    - export DEPLOYPATH=/home/dmf/bewertigo-app
     - /bin/cp -R * $DEPLOYPATH
     - /bin/cp .env.example $DEPLOYPATH
     - /bin/cp .gitignore $DEPLOYPATH
-    - cd $DEPLOYPATH
-    - npm install --production
-    - pm2 restart bewertigo || pm2 start server.js --name bewertigo
