@@ -1,0 +1,263 @@
+ezekből mindent implementáltál?
+
+1. PROJEKT ÁTTEKINTÉS
+
+A cél egy automatizált, web-alapú vállalkozás-auditáló eszköz létrehozása (Owner.com mintájára), amely az osztrák piacra van lokalizálva. A cégek objektív értékelése 0-100 pontig 90 másodperc alatt. A szoftver lead-generátorként szolgál a Bewertigo.at számára.
+
+2. FRONTEND ÉS FELHASZNÁLÓI ÉLMÉNY (UI/UX)
+
+A. Keresési fázis
+Input: Google Places API Autocomplete. A felhasználó elkezdi gépelni a nevet, a rendszer azonosítja a place_id-t, a pontos címet és a vállalkozás típusát (pl. Restaurant, Barber shop).
+
+B. "Scanning" Animáció (Owner.com stílus)
+Amíg a backend az adatokat gyűjti (kb. 60-120 másodperc), a felhasználónak egy interaktív checklistet kell látnia. A pontoknak valós időben kell kipipálódniuk, ahogy az API válaszok megérkeznek:
+
+Versenytársak és piaci pozíció (Flora & competitors)
+Google business profile(Google business profile)
+Vélemények és válaszhajlandóság (Review sentiment & response)
+Weboldal sebesség és fotóminőség (Website speed & photos)
+Felhasználói élmény és mobil-stabilitás (User Experience & Mobile UI)
+Social Media jelenlét elemzése (Social media presence)
+Adatok összesítése és riport generálása (Finalizing score)
+UI/UX DINAMIKUS ANIMÁCIÓ ÉS VIZUÁLIS FEEDBACK (INSTRUKCIÓK)
+A backend adatgyűjtés ideje alatt (kb. 90 mp) a felhasználót egy interaktív, vizuálisan gazdag animációval kell lekötni. Nem elég egy egyszerű töltőcsík; a cél, hogy a felhasználó lássa, hogy a rendszer valóban "dolgozik" és mélyelemzést végez.
+Elvárás: Amíg az adott szekció (Checklist pont) elemzése zajlik, a képernyőn az adott témához kapcsolódó dinamikus vizuális elemek jelenjenek meg:
+Versenytársak és piaci pozíció: * Vizuál: Egy beágyazott mini-térkép (Google Maps API-val), amelyen piros pinek jelölik az adott üzletet és a 3 legközelebbi konkurenciát. Egy radar-szerű szkennelő animáció fusson át a térképen.
+
+
+Google Business Profile: * Vizuál: A vállalkozás Google-ben található adatlapjának főbb elemei (nyitvatartás, telefonszám, kategória) "ússzanak be" a képernyőre, mintha a rendszer éppen most ellenőrizné a validitásukat.
+Vélemények és válaszhajlandóság: * Vizuál: Véletlenszerűen kiválasztott, valós Google-vélemények buborékai bukkanjanak fel, mellettük egy "Checking Sentiment..." vagy "Analysing Response..." feliratú pulzáló animációval.
+Weboldal sebesség és fotóminőség: * Vizuál: A vállalkozás weboldaláról és Google profiljáról behúzott fotók (Place Photos API) jelenjenek meg egy gyors galériában, miközben egy "Sebességmérő" óra (Gauge chart) mutatja a mérés folyamatát.
+Felhasználói élmény és mobil-stabilitás: * Vizuál: Egy mobiltelefon keretben (Mockup) jelenjen meg a weboldal képe, és egy "szkenner vonal" menjen végig rajta felülről lefelé, jelezve a UI-elemek (gombok, betűméret) ellenőrzését.
+Social Media jelenlét: * Vizuál: Instagram és TikTok logók pulzáljanak, miközben a rendszer "keresi" a profilokat. Ha megtalálta, jelenjenek meg a legutolsó posztok thumbnail képei egy gyors "feed" animációban.
+Adatok összesítése és riport: * Vizuál: Egy látványos, matematikai mátrix-szerű animáció (számok pörgése), ami a végső pontszám összeállítását szimbolizálja.
+Technikai követelmény:
+Használj valós adatokat (fotók, térkép, vélemények), amint azok az API-ból megérkeznek, hogy az animáció hiteles legyen.
+Az animációk legyenek smooth (folyamatos) átmenetűek (pl. Lottie files vagy Framer Motion használatával).
+A checklist mellett mindig legyen látható a státusz: "Checking...", majd ha kész: "Found 12 issues" vagy "Optimized".
+
+
+3. RÉSZLETES PONTOZÁSI ALGORITMUS (6 x 16.6 PONT = 100 PONT)
+
+I. Google Business Profile (16.6 pont)
+Alapadatok (8.3 pont): Nyitvatartás, validált telefonszám, pontos kategória, leírás (>250 karakter). (Hiányosságonként -2.1 pont).
+Profil teljesség (8.3 pont): Weboldal link megléte (4.15p), kitöltött szolgáltatások/termékek (4.15p).
+
+II. Google Review Sentiment & Response (16.6 pont)
+Csillagok átlaga (8.3 pont): 4.5 – 5.0 (max pont), 4.0 – 4.4 (5p), 3.5 – 3.9 (2p), 3.5 alatt (0p).
+Válaszadási aktivitás (8.3 pont): Utolsó 50 vélemény alapján. Válaszadási arány >90% (8.3p), 50-90% (4p), 50% alatt (0p). Sablonválaszok esetén pontlevonás.
+
+III. Website Performance & Photos (16.6 pont)
+Asztali sebesség (12.6 pont): PageSpeed Insights (Desktop). LCP < 1.2s (12.6p), 1.2s – 2.5s (6p), 2.5s felett (0p).
+Vizuális tartalom (4 pont): Legalább 5 nagy felbontású, releváns saját fotó (Google-ön/weboldalon).
+Van-e az oldalon telefonszám gomb (Click-to-call)? Ha egy mobiloldalon a telefonszámot nem lehet egy kattintással hívni, az -5 pont. Ellenőrizzük hogy a telefonszám <a href="tel:+43..."> formátumban van-e.
+Social Media Profilok felderítése (Scraping & Search Logic) Mivel a Google Places API nem minden esetben adja vissza a közösségi média linkeket, a keresést többszintűvé kell tenni:
+1. szint (Web scraping): A rendszer először nézze át az üzlet weboldalának forráskódját Instagram és TikTok linkek után kutatva.
+2. szint (Google Search API): Ha a weboldalon nincsenek kint a linkek, futtass egy automatizált keresést (pl. site:instagram.com "Cégnév + Város") a profil azonosításához.
+Logika: Ha egyáltalán nem található profil, akkor 0 pont jár a modulra. Ha a profil létezik, de nincs linkelve a weboldalon, akkor -5 pont.
+
+IV. Mobile Experience & UI/UX (16.6 pont)
+Mobil sebesség (8.3 pont): PageSpeed Insights (Mobile). LCP < 2.5s (8.3p), 2.5s – 4s (4p), 4s felett (0p).
+UI/UX Design (8.3 pont): CLS stabilitás, SSL biztonság, olvasható betűméret, kattintható gombok.
+Van-e az oldalon telefonszám gomb (Click-to-call)? Ha egy mobiloldalon a telefonszámot nem lehet egy kattintással hívni, az -5 pont. Ellenőrizzük hogy a telefonszám <a href="tel:+43..."> formátumban van-e.
+
+V. Social Media Presence – Instagram & TikTok (16.6 pont)
+Ez a modul a vállalkozás népszerűségét és aktivitását méri.
+Elérhetőség és Követőszám (8.3 pont): Van-e Instagram és TikTok link. Követőszám vizsgálata (pl. 1 000+ követő = bónusz pont). Ha nincs profil: 0 pont.
+Népszerűség és Engagement (8.3 pont): Utolsó 5-10 poszt/videó elemzése.
+Lájkok és megtekintések: Ha a videók/posztok elérik az átlagos interakciót (pl. megtekintések száma a követők legalább 20%-a): 8.3 pont.
+Ha a profil inaktív (>30 napja nincs poszt) vagy alacsony az interakció: 3 pont.
+
+VI. Competitor Analysis (16.6 pont)
+Rangsorolás: 3 közeli versenytárshoz hasonlítva. Ha az első 2-ben van (csillagok és véleményszám alapján): 16.6 pont. 3. hely: 8 pont. Utolsó: 0 pont.
+
+Hiba kezelés: Ha egy közösségi profil nem található, 0 pont, de a riport generálása folytatódik.
+
+Időlimit: < 90 másodperc.
+
+4. PDF RIPORT SPECIFIKÁCIÓ
+
+A. Felépítés:
+Főoldal: Vállalkozás neve + Hatalmas Radial Gauge Chart (0-100 összpontszám).
+Moduláris oldalak: Mind a 6 modulhoz külön szekció:
+Mért adat (pl. "TikTok nézettség: Alacsony").
+Hiba leírása (Németül): Miért veszítenek láthatóságot.
+Megoldási javaslat (Németül): Mit kínál a Bewertigo.
+Versenytárs grafikon: Oszlopdiagram az összehasonlításhoz.
+B. Upsell Link Mátrix (CTA):
+Alacsony Review pont: Bewertigo.at/googlebewertungen
+Alacsony Website/UI/Speed pont: Bewertigo.at/website
+Alacsony Social Media pont: Bewertigo.at/instagram-promotion
+Restaurant kategória: Bewertigo.at/digitalmenu ÉS Bewertigo.at/ki-telefonassistent
+Barber shop kategória: Bewertigo.at/ki-telefonassistent
+Personal Brand: Bewertigo.at/visitenkarte
+
+Valószínüleg a vállalkozások többségének több szolgáltatásunkat is fel tudjunk ajanlani.
+
+Az "Adatok összesítése" (A 7. pont mélysége)
+A 7. pont ne csak egy matek legyen. Itt kell a "Benchmark" (viszonyítási alap).
+Javaslat: A rendszer hasonlítsa az összpontszámot az osztrák iparági átlaghoz.
+Példa: "Az Ön pontszáma 62. A bécsi éttermek átlaga 78. Ön elmarad a piaci sztenderdtől." – Ez azonnal cselekvésre ösztönzi az ügyfelet.
+
+Legyen konkret megoldási javaslat:
+Minden "Hiba" mellé generáljon a rendszer egy "Estimated Loss" (Becsült veszteség) mondatot.
+Példa: "Mivel a Google értékelései 4.0 alatt vannak, a kutatások szerint a potenciális vendégek 45%-a inkább a konkurenciát választja."
+
+2 OLDALAS "FULL-AUDIT" PDF SPECIFIKÁCIÓ
+
+1. OLDAL: A DIGNÓZIS (A 6 modul eredménye)
+Header: Logó + Vállalkozás neve + Dátum + Város.
+Main Score: Felül középen a nagy Radial Gauge Chart (0-100).
+The 6 Pillars (A 6 tartópillér): Egy 2x3-as rácsos elrendezésben mind a 6 modul pontszáma (kis ikonnal és pontszámmal):
+Google Profil
+Reviews & Response
+Website Speed
+Mobile UI/UX
+Social Media
+Market Position
+Top Failures & Estimated Loss: A rács alatt egy kiemelt vörös szekció, ami a 2 leggyengébb pontot nevesíti és mellé teszi a már megbeszélt "Estimated Loss" (Német nyelvű) mondatokat.
+Market Comparison: Az oldal alján egy sávdiagram, ami megmutatja a vállalkozást a 3 közeli versenytárs mellett.
+
+2. OLDAL: A BEWERTIGO STRATÉGIA (Megoldások és CTA)
+Action Plan (6 Megoldás): Rövid, 1-2 mondatos megoldási javaslat mind a 6 területre (Németül), belefűzve a Bewertigo szolgáltatásait (NFC tábla, AI válaszok, High-speed web, stb.).
+The "Industry Benchmark" Box: Itt jelenik meg az összehasonlítás: "Ihr Score: [X] | Branchendurchschnitt in [Stadt]: [Y]".
+IHR GESCHENK (A csali): Nagy fotó az NFC tábláról (60€ érték).
+Final Call to Action: Egyértelmű, nagy gomb: "STRATEGIEGESPRÄCH & GESCHENK SICHERN".
+https://bewertigo.at/termin
+
+Fűzdd bele az URL-be a cég nevét: bewertigo.at/termin?company=BarberShopWien. Így amikor megnyitja a naptáradat, a foglalási űrlapon már előre ki van töltve a cégneve.
+
+A PDF 1. oldalán a 2x3-as rácsnál ne csak számok legyenek.
+Használj apró színkódolt köröket (Red/Yellow/Green) a pontszámok mellett, mint egy műszerfalon. Az emberi agy előbb reagál a színekre, mint a számokra.
+PDF "Shareability" (Megoszthatóság)
+A PDF végére tegyél egy gombot: "Diesen Report an den Webmaster/Agentur weiterleiten".
+
+INSTRUKCIÓ
+Dinamikus Tartalomkezelés:
+6-Modul Mátrix: A PDF első oldalán jelenítsd meg mind a 6 kategória pontszámát egy vizuális rácsban. Használj színkódokat: 0-49 (Vörös), 50-79 (Sárga), 80-100 (Zöld).
+Kivonatolás: A szoftver válassza ki automatikusan a 2 legrosszabb pontszámú modult, és ezekhez generálja le az "Estimated Loss" blokkokat a vörös keretbe.
+Lokalizáció: A városnevet (Város) és az iparági átlagot (Benchmark) az adatbázisból vagy a Google Places API-ból húzd be dinamikusan a szövegbe.
+CTA Logika: A gomb linkje tartalmazza az ügyfél e-mail címét vagy egy egyedi azonosítót, hogy a naptár-foglalásnál tudjuk, ki jelentkezett.
+
+PDF PSZICHOLÓGIA ÉS DINAMIKUS TARTALOM (RÉSZLETES SPECIFIKÁCIÓ)
+
+1. Modul: Google Business Profile
+A. Der Fehler (Hiba): Hiányos adatok, nincs leírás vagy hiányzó weboldal link.
+Pszichológiai trigger: Bizalomvesztés és online láthatatlanság.
+Estimated Loss: "Unvollständige Profile wirken unprofessionell. Studien zeigen, dass 70% der Kunden Unternehmen ohne hinterlegte Website oder klare Öffnungszeiten sofort überspringen und zur Konkurrenz gehen."
+B. Unsere Lösung (Bewertigo megoldása):
+Maximale Sichtbarkeit: "Wir optimieren Ihr Profil mit SEO-relevanten Keywords und einer glasklaren Struktur, damit Sie in der lokalen Google-Suche ganz oben erscheinen."
+Direkte Kundenwege: "Wir implementieren direkte Buchungs- und Kontaktlinks, die Interessenten ohne Umwege zu zahlenden Kunden machen."
+C. CTA: Bewertigo.at/googlebewertungen
+Bewertigo.at/website
+
+2. Modul: Google Reviews & Response
+A. Der Fehler (Hiba): Alacsony csillagszám (< 4.5) vagy válaszolatlan/sablonos vélemények.
+Pszichológiai trigger: Social Proof hiánya és az ügyfél figyelmen kívül hagyása.
+Estimated Loss: "Da Ihre Bewertung unter 4.5 Sternen liegt oder viele Rezensionen unbeantwortet sind, wählen laut Statistik bis zu 45% der potenziellen Kunden lieber einen Mitbewerber in Ihrer Nähe, der aktiver auf Feedback reagiert."
+B. Unsere Lösung (Bewertigo megoldása):
+Smarte Rezensions-Filterung: "Unser System filtert Kundenfeedback intelligent: 5-Sterne-Bewertungen werden direkt auf Google geleitet, während kritisches Feedback (1-4 Sterne) intern an Sie gesendet wird. So schützen wir Ihren Ruf proaktiv."
+Automatisierte KI-Antworten: "Vergessen Sie mühsames Tippen. Unsere KI beantwortet jede Rezension – egal in welcher Sprache – blitzschnell, detailliert und individuell. Das signalisiert Google maximale Wertschätzung."
+NFC-Hardware Inklusive: "Um mehr echte 5-Sterne-Bewertungen zu generieren, erhalten Sie von uns ein NFC-Google-Bewertungs-Display im Wert von 60€ kostenlos dazu. Ein 'Tap' des Kunden genügt."
+(Termékfotó az NFC tábláról)
+Ügyfél-pszichológia (Keretes): "Wussten Sie, dass Google Unternehmen mit einer Antwortrate von über 90% in den Suchergebnissen bevorzugt behandelt (Ranking-Faktor)? Wer schweigt, verliert Platzierungen."
+C. CTA: Bewertigo.at/googlebewertungen
+
+3. Modul: Website Performance (Desktop Speed)
+A. Der Fehler (Hiba): Lassú betöltési idő (LCP > 2.5s).
+Pszichológiai trigger: Türelmetlenség és technikai elavultság érzete.
+Estimated Loss: "Jede Sekunde Verzögerung reduziert Ihre Conversion-Rate um 7%. Bei Ihrer aktuellen Ladezeit verlassen frustrierte Besucher Ihre Seite, noch bevor sie Ihr Angebot überhaupt gesehen haben."
+B. Unsere Lösung (Bewertigo megoldása):
+High-Speed Infrastruktur: "Wir transformieren Ihre Website in eine Hochleistungsplattform. Durch modernste Bildkomprimierung und Caching erreichen wir Ladezeiten unter 1 Sekunde."
+Google Core Web Vitals: "Wir optimieren Ihre Seite nach den neuesten Google-Standards, was zu einer massiv besseren Platzierung in den Suchergebnissen führt."
+Ügyfél-pszichológia (Keretes): "Besucher entscheiden innerhalb von 3 Sekunden, ob sie auf einer Seite bleiben. Ist Ihre Website zu langsam, schenken Sie Ihre Kunden direkt der Konkurrenz."
+C. CTA: Bewertigo.at/website
+
+4. Modul: Mobile Experience & UI/UX
+A. Der Fehler (Hiba): Nem kattintható telefonszám (Click-to-call hiánya) vagy rossz mobil elrendezés.
+Pszichológiai trigger: Frusztráció a vásárlási folyamatban.
+Estimated Loss: "80% der lokalen Suchen erfolgen mobil. Ohne eine 'Click-to-Call' Funktion verlieren Sie Kunden genau in dem Moment, in dem sie bereit sind, bei Ihnen zu kaufen oder zu buchen."
+B. Unsere Lösung (Bewertigo megoldása):
+Mobile-First Design: "Wir gestalten Ihre Website so, dass sie auf jedem Smartphone perfekt aussieht und intuitiv bedienbar ist."
+Conversion-Buttons: "Wir integrieren strategische Kontakt-Buttons, die die Hemmschwelle zur Kontaktaufnahme auf nahezu Null senken."
+Ügyfél-pszichológia (Keretes): "Ein mobiles Erlebnis ohne direkten Call-Button ist wie ein Geschäft ohne Türgriff. Wir bauen Ihnen den direkten Weg zum Kunden."
+C. CTA: Bewertigo.at/website
+
+5. Modul: Social Media (Instagram & TikTok)
+A. Der Fehler (Hiba): Alacsony engagement, inaktív profilok (>30 nap poszt nélkül).
+Pszichológiai trigger: Lemaradás a trendekről (FOMO) és halott brand érzete.
+Estimated Loss: "Ein inaktiver Social-Media-Kanal wirkt wie ein geschlossenes Geschäft. Sie verpassen monatlich Tausende von kostenlosen Impressionen und den Kontakt zu Ihrer Zielgruppe."
+B. Unsere Lösung (Bewertigo megoldása):
+Sichtbarkeits-Boost: "Wir entwickeln eine Content-Strategie, die virales Potenzial hat und Ihre Marke als Top-Experten in Ihrer Region etabliert."
+Smart Promotion: "Durch unsere Instagram & TikTok Tools erreichen wir exakt die Menschen in Ihrem Umkreis, die nach Ihren Dienstleistungen suchen."
+Ügyfél-pszichológia (Keretes): "Kunden nutzen Instagram heute wie eine Suchmaschine. Wer dort nicht stattfindet oder inaktiv ist, existiert für die neue Generation von Kunden nicht."
+C. CTA: Bewertigo.at/instagram-promotion
+
+6. Modul: Competitor Analysis
+A. Der Fehler (Hiba): A konkurencia erősebb online jelenléte és jobb rangsorolása.
+Pszichológiai trigger: Versenyszellem és félelem a piaci részesedés elvesztésétől.
+Estimated Loss: "Ihre Top-3 Konkurrenten ziehen aktuell 3-mal mehr Aufmerksamkeit auf sich als Sie. Ohne sofortige Korrektur festigt sich dieser Marktanteilsverlust dauerhaft zu Ihren Ungunsten."
+B. Unsere Lösung (Bewertigo megoldása):
+Marktdominanz-Konzept: "Wir analysieren die Schwachstellen Ihrer Mitbewerber und nutzen diese aus, um Sie an die Spitze Ihres lokalen Marktes zu führen."
+Bewertigo-Ökosystem: "Durch die Kombination aus KI-Marketing, NFC-Displays und SEO-Websites überholen wir Ihre Konkurrenz in Rekordzeit."
+Ügyfél-pszichológia (Keretes): "Im Internet gibt es keinen zweiten Platz. Wer auf Seite 1 oben steht, bekommt 90% der Anfragen. Wir bringen Sie genau dorthin."
+C. CTA: Bewertigo.at/googlebewerungen
+Bewertigo.at/website
+Dinamikus Iparági Benchmark (Adatbázis építés) Szeretném, ha a riport végén az összpontszámot összehasonlítanánk az osztrák iparági átlaggal (pl. "Az Ön pontszáma 62, a bécsi éttermek átlaga 78").
+Kezdeti fázis: Mivel még nincs saját adatbázisunk, használj statikus (hard-coded) átlagértékeket kategóriánként (pl. Étterem: 75, Barber: 72).
+Dinamikus fázis: A rendszer minden lefutott audit eredményét mentse el egy adatbázisba. Amint elértük a 100 mérést az adott kategóriában, a szoftver váltson át automatikusan a saját adatbázisunk valós idejű átlagának kiszámítására.
+
+PageSpeed Insights "Retry" Logika A Google PageSpeed Insights API néha instabil (Cold Start hiba), és előfordulhat, hogy elsőre nem küld adatot vagy timeoutot ad.
+Elvárás: Implementálj egy Retry logic-ot. Ha az API nem küld választ 30 másodpercen belül, vagy hibaüzenetet ad, a rendszer automatikusan próbálja meg újra a mérést legalább kétszer. Ne fordulhasson elő, hogy a felhasználó 0 pontot kap a sebességre csak azért, mert az API éppen nem válaszolt.
+
+5. BLUR LOGIKA ÉS LEAD GENERÁLÁS
+
+Eredményoldal: Az összpontszám (pl. 74/100) és a státusz (Poor/Fair/Excellent) azonnal látható.
+Gated Content: A konkrét hibaüzenetek, a versenytársak nevei és a technikai UI/UX javítási javaslatok CSS Blur (20px) alatt vannak.
+Lead Capture: Popup ablakban kéri az e-mail címet a feloldáshoz. GDPR Megfelelőség: Legyen egy checkboxo az e-mail bekérése elé plusz Bewertigo.at/agb es bewertigo.at/datenschutz . Email-Validálás: Legyen egy valós idejű e-mail ellenőrzőt (pl. ne lehessen a@a.hu-t beírni), hogy csak minőségi leadeket kapjunk.
+Action: Az adatok beküldése után a Blur eltűnik, és elindítjuk a riportküldést.
+
+6. Technikai Caching (Gyorsítótárazás)
+Ha ugyanaz a cég 5-ször lefuttatja az auditot egy óra alatt, ne pazarold a Google API keretedet.
+Elvárás: A rendszer mentse el az eredményt 48 óráig. Ha ugyanarra a place_id-re keresnek rá, töltse be a mentett adatot azonnal.
+Színkódolás: Az "Estimated Loss" blokkok kapjanak halványvörös hátteret és félkövér betűtípust.
+Megszólítás: Szigorúan "Ihr Unternehmen" (Az Ön vállalkozása).
+
+Esetleges hibák elkerülése
+
+1. A "No-Website" Logika
+Mi történik, ha a Google Places API-ban nincs megadva weboldal?
+A hiba: Jelenleg a III. és IV. modul (Website & Mobile) 0 pontot adna, és a scraper elszállna.
+A megoldás: Ha nincs weboldal, a rendszernek egy speciális "Kritikus riasztás" blokkot kell generálnia a PDF-be: "Sie existieren digital nicht. Ohne Website vertrauen Ihnen 80% der Neukunden nicht." Ez a legnagyobb upsell lehetőség a weboldal készítésre!
+2. Google Places API Költségkontroll
+A probléma: A Place Details lekérés drága ($0.017 - $0.025 / lekérés). Ha a felhasználó csak "játszik" az Autocomplete-tel, de nem indítja el a scannet, ne kérjük le a részleteket.
+Instrukció: A részletes adatokat (Reviews, Photos, etc.) csak akkor kérje le a rendszer, ha a felhasználó rákattintott a kiválasztott cégre.
+3. Social Media Scraper "Fallback"
+A hiba: Ha az automata keresés nem talál Instagramot, de van neki, az ügyfél azt hiheti, a szoftver rossz.
+A megoldás: A Lead Capture popup után (amikor a blur eltűnik) legyen egy kis gomb: "Profil nicht gefunden? Link manuell hinzufügen". Ez javítja az adatminőséget és interakcióra késztet.
+
+ZÁRÓ INSTRUKCIÓ: A cél nem csak az adatkinyerés, hanem a bizalomépítés. Ha egy API nem küld adatot (pl. a cégnek nincs TikTokja), a PDF-ben ne "Hibaüzenet" szerepeljen, hanem: "Chance ungenutzt" (Kihasználatlan lehetőség). A hangvétel legyen professzionális, tekintélyelvű, de segítőkész. A technikai mérések (LCP, CLS) mellé mindig írjuk oda zárójelben, hogy mit jelent (pl. "Ladezeit der wichtigsten Inhalte"), hogy a laikus cégtulajdonos is értse.
+
+
+
+
+
+
+
+
+
+
+Screenshot.rocks (ingyenes, gyors)
+Microlink.io (népszerű, megbízható)
+ScreenshotMachine (backup)
+
+
+https://www.screenshotmachine.com/how-to.php?action=registration
+
+https://api.screenshotmachine.com?key=321718&url=screenshotmachine.com&dimension=1024x768
+
+
+
+
+
+
