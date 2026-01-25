@@ -893,6 +893,9 @@ function showMobilePreview(auditData = null) {
             width: 100%;
             height: 100%;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .mobile-website-iframe {
             width: 375px;
@@ -900,7 +903,7 @@ function showMobilePreview(auditData = null) {
             border: none;
             display: block;
             transform: scale(0.64);
-            transform-origin: top left;
+            transform-origin: center center;
         }
         .scanner-line {
             position: absolute;
