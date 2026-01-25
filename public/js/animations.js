@@ -181,7 +181,7 @@ function simulateRadiusExpansion() {
 function updateRadiusDisplay(radius, status) {
     const radiusElement = document.getElementById('current-radius');
     const statusElement = document.getElementById('search-status');
-    
+
     if (radiusElement) {
         radiusElement.textContent = radius;
     }
@@ -245,11 +245,11 @@ async function initLiveCompetitorMap(auditData) {
 
         // Draw search radius circle (dynamic based on where competitors were found)
         // Estimate radius: if 1-2 competitors within close range, show 1.5km, otherwise 3km or 5km
-        const maxDistance = competitors.length > 0 
-            ? Math.max(...competitors.map(c => c.distance)) 
+        const maxDistance = competitors.length > 0
+            ? Math.max(...competitors.map(c => c.distance))
             : 3;
         const searchRadius = maxDistance <= 2 ? 1500 : (maxDistance <= 4 ? 3000 : 5000);
-        
+
         new google.maps.Circle({
             map: map,
             center: businessLocation,
