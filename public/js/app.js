@@ -732,48 +732,48 @@ function renderDetailedResults(audit) {
         const ps = audit.rawData.pageSpeedData;
         const desktopScreenshot = audit.rawData.websiteScreenshotDesktop;
         const mobileScreenshot = audit.rawData.websiteScreenshotMobile;
-        
+
         html += `<div class="info-section"><h2>🚀 Website Performance</h2>`;
 
         // Show screenshots (iframe previews)
         if (desktopScreenshot?.url || mobileScreenshot?.url) {
             html += `<div class="screenshots-grid">`;
-            
+
             if (desktopScreenshot?.url) {
                 html += `
                     <div class="screenshot-card">
                         <h3>💻 Desktop Preview</h3>
-                        ${desktopScreenshot.type === 'iframe' ? 
-                            `<iframe src="${desktopScreenshot.url}" class="screenshot-iframe" sandbox="allow-scripts allow-same-origin"></iframe>` :
-                            desktopScreenshot.ogImage ? 
-                                `<img src="${desktopScreenshot.ogImage}" alt="Desktop Screenshot" class="screenshot-img" />` :
-                                `<div class="screenshot-placeholder">Vorschau nicht verfügbar</div>`
-                        }
+                        ${desktopScreenshot.type === 'iframe' ?
+                        `<iframe src="${desktopScreenshot.url}" class="screenshot-iframe" sandbox="allow-scripts allow-same-origin"></iframe>` :
+                        desktopScreenshot.ogImage ?
+                            `<img src="${desktopScreenshot.ogImage}" alt="Desktop Screenshot" class="screenshot-img" />` :
+                            `<div class="screenshot-placeholder">Vorschau nicht verfügbar</div>`
+                    }
                     </div>
                 `;
             }
-            
+
             if (mobileScreenshot?.url) {
                 html += `
                     <div class="screenshot-card mobile">
                         <h3>📱 Mobile Preview</h3>
-                        ${mobileScreenshot.type === 'iframe' ? 
-                            `<iframe src="${mobileScreenshot.url}" class="screenshot-iframe mobile-view" sandbox="allow-scripts allow-same-origin"></iframe>` :
-                            mobileScreenshot.ogImage ? 
-                                `<img src="${mobileScreenshot.ogImage}" alt="Mobile Screenshot" class="screenshot-img" />` :
-                                `<div class="screenshot-placeholder">Vorschau nicht verfügbar</div>`
-                        }
+                        ${mobileScreenshot.type === 'iframe' ?
+                        `<iframe src="${mobileScreenshot.url}" class="screenshot-iframe mobile-view" sandbox="allow-scripts allow-same-origin"></iframe>` :
+                        mobileScreenshot.ogImage ?
+                            `<img src="${mobileScreenshot.ogImage}" alt="Mobile Screenshot" class="screenshot-img" />` :
+                            `<div class="screenshot-placeholder">Vorschau nicht verfügbar</div>`
+                    }
                     </div>
                 `;
             }
-            
+
             html += `</div>`;
         }
 
         // Show PageSpeed metrics only if available (check if metrics have actual data)
         const hasDesktopMetrics = ps?.desktop?.metrics && Object.keys(ps.desktop.metrics).length > 0;
         const hasMobileMetrics = ps?.mobile?.metrics && Object.keys(ps.mobile.metrics).length > 0;
-        
+
         if (hasDesktopMetrics || hasMobileMetrics) {
             html += `<div class="performance-grid">`;
 
@@ -817,7 +817,7 @@ function renderDetailedResults(audit) {
         const hasFacebook = social.facebook && typeof social.facebook === 'object';
         const hasInstagram = social.instagram && typeof social.instagram === 'object';
         const hasTikTok = social.tiktok && typeof social.tiktok === 'object';
-        
+
         // Only show section if at least one profile has data
         if (hasFacebook || hasInstagram || hasTikTok) {
             html += `<div class="info-section"><h2>📱 Social Media Präsenz</h2><div class="social-grid">`;
@@ -835,7 +835,7 @@ function renderDetailedResults(audit) {
                     ${social.instagram.lastPost ? `<p>Letzter Post: ${social.instagram.lastPost}</p>` : ''}
                 </div>`;
             }
-            
+
             if (hasTikTok) {
                 html += `<div class="social-card"><h3>TikTok</h3>
                     <div class="social-status ${social.tiktok.exists ? 'active' : 'inactive'}">${social.tiktok.exists ? '✓ Aktiv' : '✗ Nicht gefunden'}</div>
@@ -945,7 +945,7 @@ function initCompetitorMap(businessLocation, businessName, competitors) {
         console.error('❌ Map div not found');
         return;
     }
-    
+
     if (!window.google) {
         console.error('❌ Google Maps not loaded');
         showMapFallback(mapDiv, businessName, competitors);
@@ -962,104 +962,115 @@ function initCompetitorMap(businessLocation, businessName, competitors) {
             bounds.extend(competitor.location);
         });
 
-        // Create map (without zoom/center, we'll fit bounds)
-        const map = new google.maps.Map(mapDiv, {
-        styles: [
-            { elementType: 'geometry', stylers: [{ color: '#f5f5f5' }] },
-            { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-            { elementType: 'labels.text.fill', stylers: [{ color: '#616161' }] },
-            { elementType: 'labels.text.stroke', stylers: [{ color: '#f5f5f5' }] },
-            { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
-            { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#c9c9c9' }] }
-        ],
-        disableDefaultUI: true,
-        zoomControl: true
-    });
+        let map;
+        // Create map with error handling for API restrictions
+        try {
+            map = new google.maps.Map(mapDiv, {
+                styles: [
+                    { elementType: 'geometry', stylers: [{ color: '#f5f5f5' }] },
+                    { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#616161' }] },
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#f5f5f5' }] },
+                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#c9c9c9' }] }
+                ],
+                disableDefaultUI: true,
+                zoomControl: true
+            });
+        } catch (mapError) {
+            console.error('❌ Google Maps initialization error:', mapError);
+            // Check if it's an API restriction error
+            if (mapError.message && mapError.message.includes('ApiTargetBlockedMapError')) {
+                console.log('ℹ️ Google Maps API is restricted (localhost not allowed). Showing fallback.');
+            }
+            showMapFallback(mapDiv, businessName, competitors);
+            return;
+        }
 
-    // Add business marker (larger, special icon) - Using standard Marker for compatibility
-    const businessMarker = new google.maps.Marker({
-        position: businessLocation,
-        map: map,
-        title: businessName,
-        icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 12,
-            fillColor: '#ef4444',
-            fillOpacity: 1,
-            strokeColor: '#ffffff',
-            strokeWeight: 3
-        },
-        zIndex: 1000,
-        optimized: true
-    });
-
-    // Info window for business
-    const businessInfo = new google.maps.InfoWindow({
-        content: `<div style="padding: 10px;"><strong>${businessName}</strong><br><span style="color: #ef4444;">Ihr Unternehmen</span></div>`
-    });
-    businessMarker.addListener('click', () => businessInfo.open(map, businessMarker));
-
-    // Add competitor markers
-    competitors.forEach((competitor, index) => {
-        const marker = new google.maps.Marker({
-            position: competitor.location,
+        // Add business marker (larger, special icon) - Using standard Marker for compatibility
+        const businessMarker = new google.maps.Marker({
+            position: businessLocation,
             map: map,
-            title: competitor.name,
+            title: businessName,
             icon: {
                 path: google.maps.SymbolPath.CIRCLE,
-                scale: 8,
-                fillColor: '#f97316',
-                fillOpacity: 0.8,
+                scale: 12,
+                fillColor: '#ef4444',
+                fillOpacity: 1,
                 strokeColor: '#ffffff',
-                strokeWeight: 2
+                strokeWeight: 3
             },
-            zIndex: 100 - index,
+            zIndex: 1000,
             optimized: true
         });
 
-        const info = new google.maps.InfoWindow({
-            content: `<div style="padding: 10px;">
+        // Info window for business
+        const businessInfo = new google.maps.InfoWindow({
+            content: `<div style="padding: 10px;"><strong>${businessName}</strong><br><span style="color: #ef4444;">Ihr Unternehmen</span></div>`
+        });
+        businessMarker.addListener('click', () => businessInfo.open(map, businessMarker));
+
+        // Add competitor markers
+        competitors.forEach((competitor, index) => {
+            const marker = new google.maps.Marker({
+                position: competitor.location,
+                map: map,
+                title: competitor.name,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 8,
+                    fillColor: '#f97316',
+                    fillOpacity: 0.8,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2
+                },
+                zIndex: 100 - index,
+                optimized: true
+            });
+
+            const info = new google.maps.InfoWindow({
+                content: `<div style="padding: 10px;">
                 <strong>${competitor.name}</strong><br>
                 ⭐ ${competitor.rating} (${competitor.reviewCount} Bewertungen)<br>
                 📍 ${competitor.distance} km entfernt
             </div>`
+            });
+            marker.addListener('click', () => info.open(map, marker));
         });
-        marker.addListener('click', () => info.open(map, marker));
-    });
 
-    // Draw 3km radius circle
-    new google.maps.Circle({
-        map: map,
-        center: businessLocation,
-        radius: 3000,
-        fillColor: '#6366f1',
-        fillOpacity: 0.05,
-        strokeColor: '#6366f1',
-        strokeOpacity: 0.3,
-        strokeWeight: 1
-    });
+        // Draw 3km radius circle
+        new google.maps.Circle({
+            map: map,
+            center: businessLocation,
+            radius: 3000,
+            fillColor: '#6366f1',
+            fillOpacity: 0.05,
+            strokeColor: '#6366f1',
+            strokeOpacity: 0.3,
+            strokeWeight: 1
+        });
 
-    // Fit map to show all markers
-    if (competitors.length > 0) {
-        map.fitBounds(bounds);
-        // Add some padding and limit max zoom
+        // Fit map to show all markers
+        if (competitors.length > 0) {
+            map.fitBounds(bounds);
+            // Add some padding and limit max zoom
+            setTimeout(() => {
+                const currentZoom = map.getZoom();
+                if (currentZoom > 15) {
+                    map.setZoom(15);
+                }
+            }, 100);
+        } else {
+            map.setCenter(businessLocation);
+            map.setZoom(14);
+        }
+
+        // Trigger radar animation after map loads
         setTimeout(() => {
-            const currentZoom = map.getZoom();
-            if (currentZoom > 15) {
-                map.setZoom(15);
-            }
-        }, 100);
-    } else {
-        map.setCenter(businessLocation);
-        map.setZoom(14);
-    }
+            const radar = document.querySelector('.radar-scanner');
+            if (radar) radar.style.animation = 'radar-scan 3s ease-in-out';
+        }, 500);
 
-    // Trigger radar animation after map loads
-    setTimeout(() => {
-        const radar = document.querySelector('.radar-scanner');
-        if (radar) radar.style.animation = 'radar-scan 3s ease-in-out';
-    }, 500);
-    
     } catch (error) {
         console.error('❌ Error initializing competitor map:', error);
         showMapFallback(mapDiv, businessName, competitors);
@@ -1160,7 +1171,7 @@ async function submitLead(event) {
         closeLeadForm();
         document.getElementById('unlock-cta').style.display = 'none';
         document.getElementById('modules-grid').classList.remove('blurred');
-        
+
         // Remove blur from detailed results
         const detailedDiv = document.getElementById('detailed-results');
         if (detailedDiv) {
