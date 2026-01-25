@@ -237,9 +237,15 @@ class GooglePlacesService {
                     params.type = primaryType;
                 }
 
+                console.log('API Request params:', JSON.stringify(params, null, 2));
+
                 const response = await axios.get(`${this.baseUrl}/nearbysearch/json`, { params });
 
+                console.log(`API Response status: ${response.data.status}`);
+
                 if (response.data.status !== 'OK' && response.data.status !== 'ZERO_RESULTS') {
+                    console.error(`❌ Google Places API Error: ${response.data.status}`);
+                    console.error('Error message:', response.data.error_message);
                     throw new Error(`Nearby Search Error: ${response.data.status}`);
                 }
 
@@ -365,7 +371,11 @@ class GooglePlacesService {
 
             return detailedCompetitors;
         } catch (error) {
-            console.error('Find Competitors error:', error.message);
+            console.error('❌ Find Competitors FATAL ERROR:', error.message);
+            console.error('Error stack:', error.stack);
+            if (error.response) {
+                console.error('API Error Response:', error.response.data);
+            }
             return [];
         }
     }
