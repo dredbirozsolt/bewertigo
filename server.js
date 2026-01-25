@@ -14,7 +14,7 @@ app.use(helmet({
         directives: {
             ...helmet.contentSecurityPolicy.getDefaultDirectives(),
             "script-src": ["'self'", "'unsafe-inline'", "https://maps.googleapis.com"],
-            "img-src": ["'self'", "data:", "https://maps.googleapis.com", "https://maps.gstatic.com", "https://lh3.googleusercontent.com"],
+            "img-src": ["'self'", "data:", "https://maps.googleapis.com", "https://maps.gstatic.com"],
             "connect-src": ["'self'", "https://maps.googleapis.com"],
             "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             "font-src": ["'self'", "https://fonts.gstatic.com"]
@@ -48,6 +48,7 @@ connectDB();
 app.use('/api/audit', require('./routes/audit'));
 app.use('/api/lead', require('./routes/lead'));
 app.use('/api/config', require('./routes/config'));
+app.use('/api/photo', require('./routes/photo'));
 
 // Health check
 app.get('/api/health', (req, res) => {

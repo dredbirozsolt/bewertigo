@@ -114,11 +114,12 @@ class GooglePlacesService {
 
     /**
      * Get photo URL
-     * Use frontend API key for browser-side requests (HTTP referrer restriction)
+     * Returns a proxy URL that the backend will use to fetch photos
+     * This allows using the IP-restricted backend API key
      */
     getPhotoUrl(photoReference, maxWidth = 800) {
-        const frontendKey = process.env.GOOGLE_MAPS_API_KEY || this.apiKey;
-        return `${this.baseUrl}/photo?maxwidth=${maxWidth}&photo_reference=${photoReference}&key=${frontendKey}`;
+        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+        return `${baseUrl}/api/photo/proxy?photo_reference=${photoReference}&maxwidth=${maxWidth}`;
     }
 
     /**
