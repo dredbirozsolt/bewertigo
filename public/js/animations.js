@@ -621,7 +621,10 @@ function showWebsiteSpeed(auditData = null) {
     console.log('📸 Desktop screenshot found:', desktopScreenshot ? 'YES' : 'NO');
 
     if (desktopScreenshot) {
-        console.log('📸 Desktop screenshot preview:', desktopScreenshot.substring(0, 50) + '...');
+        const preview = typeof desktopScreenshot === 'string' 
+            ? desktopScreenshot.substring(0, 50) + '...'
+            : 'iframe-object';
+        console.log('📸 Desktop screenshot preview:', preview);
     }
 
     let screenshotHtml = '';
