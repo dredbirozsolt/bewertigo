@@ -41,7 +41,15 @@ router.post('/start', async (req, res) => {
         }
 
         // Get basic place details first (this is quick)
+        console.log(`📍 Fetching place details for ${placeId}...`);
         const placeDetails = await googlePlaces.getPlaceDetails(placeId);
+        console.log(`✅ Place details received:`, {
+            name: placeDetails?.name,
+            hasLocation: !!placeDetails?.location,
+            location: placeDetails?.location,
+            types: placeDetails?.types,
+            businessType: placeDetails?.businessType
+        });
 
         // Create audit record
         const audit = await Audit.create({
@@ -278,10 +286,20 @@ async function processAudit(auditId, placeDetails) {
     let audit = await Audit.findByPk(auditId);
 
     try {
+        console.log('=== PROCESS AUDIT START ===');
+        console.log('Audit ID:', auditId);
+        console.log('Place Details received:', {
+            name: placeDetails?.name,
+            location: placeDetails?.location,
+            types: placeDetails?.types,
+            hasLocation: !!placeDetails?.location
+        });
+
         // Step 1: Update progress IMMEDIATELY so frontend sees it
         await updateProgress(audit, 1, 'Vergleich mit Konkurrenten...');
 
         // Find competitors (this can take 5-15 seconds)
+        console.log('🔍 Starting competitor search...');
         const competitors = await googlePlaces.findNearbyCompetitors(
             placeDetails.location,
             placeDetails.types || [placeDetails.businessType], // Pass all types for better matching
@@ -290,13 +308,17 @@ async function processAudit(auditId, placeDetails) {
             placeDetails.name // Pass business name for keyword detection
         );
 
+        console.log(`✅ Competitor search complete. Found ${competitors.length} competitors`);
+
         // Save placeDetails + competitors for Step 1 data
+        console.log('💾 Saving placeDetails and competitors to rawData...');
         await audit.update({
             rawData: {
                 placeDetails,
                 competitors
             }
         });
+        console.log('✅ rawData saved successfully');
 
         // Extra delay for Step 1 to let users see competitor map animation
         // Competitors appear: business (500ms), comp1 (1500ms), comp2 (2500ms), comp3 (3500ms)
