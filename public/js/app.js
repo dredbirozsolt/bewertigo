@@ -280,6 +280,7 @@ function startProgressPolling() {
             }
 
             const audit = data.audit;
+            console.log(`📊 Poll: Step ${audit.progress.current}/${audit.progress.total} - Status: ${audit.status}`);
 
             // Update progress (with delay for animations)
             if (audit.progress.current > currentStep) {
