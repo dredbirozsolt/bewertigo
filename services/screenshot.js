@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const { RETRY_CONFIG } = require('../config/constants');
 
 class ScreenshotService {
@@ -37,29 +37,31 @@ class ScreenshotService {
                 ]
             };
 
-            // On macOS, try to use system Chrome for better Apple Silicon compatibility
-            if (platform === 'darwin') {
-                const macChromePaths = [
-                    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-                    '/Applications/Chromium.app/Contents/MacOS/Chromium',
-                    '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
-                    process.env.CHROME_PATH
-                ].filter(Boolean);
+            // Try to find Chrome/Chromium
+            const chromePaths = [
+                process.env.CHROME_PATH,
+                process.env.PUPPETEER_EXECUTABLE_PATH,
+                // Linux/Server paths
+                '/usr/bin/chromium-browser',
+                '/usr/bin/chromium',
+                '/usr/bin/google-chrome',
+                '/usr/bin/google-chrome-stable',
+                // macOS paths
+                '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+                '/Applications/Chromium.app/Contents/MacOS/Chromium',
+                '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
+            ].filter(Boolean);
 
-                for (const path of macChromePaths) {
-                    if (fs.existsSync(path)) {
-                        launchOptions.executablePath = path;
-                        console.log(`✅ macOS: Using system browser at ${path}`);
-                        break;
-                    }
+            for (const path of chromePaths) {
+                if (fs.existsSync(path)) {
+                    launchOptions.executablePath = path;
+                    console.log(`✅ Using browser at ${path}`);
+                    break;
                 }
+            }
 
-                if (!launchOptions.executablePath) {
-                    console.log(`⚠️  macOS: No system Chrome found, using bundled Chromium`);
-                }
-            } else {
-                // Linux/Docker: Use bundled Chromium (works well on servers)
-                console.log(`✅ ${platform}: Using bundled Chromium`);
+            if (!launchOptions.executablePath) {
+                throw new Error('Chrome/Chromium not found. Set CHROME_PATH or PUPPETEER_EXECUTABLE_PATH environment variable.');
             }
 
             this.browser = await puppeteer.launch(launchOptions);

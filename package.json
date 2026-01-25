@@ -28,7 +28,7 @@
         "node-cache": "^5.1.2",
         "nodemailer": "^6.9.7",
         "pdfkit": "^0.14.0",
-        "puppeteer": "^21.5.0",
+        "puppeteer-core": "^21.11.0",
         "sequelize": "^6.37.7",
         "validator": "^13.11.0"
     },
