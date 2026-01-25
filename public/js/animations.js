@@ -631,22 +631,24 @@ function showWebsiteSpeed(auditData = null) {
     if (desktopScreenshot) {
         // Check if it's an iframe-based preview (object with URL)
         if (typeof desktopScreenshot === 'object' && desktopScreenshot.type === 'iframe') {
+            const hasOgImage = !!desktopScreenshot.ogImage;
             screenshotHtml = `
                 <div class="website-screenshot-preview">
                     <div class="screenshot-device desktop">
                         <div class="screenshot-label">💻 Desktop Preview</div>
-                        <div class="iframe-container">
+                        <div class="iframe-container" ${hasOgImage ? 'data-has-fallback="true"' : ''}>
+                            ${hasOgImage ? `
+                                <img src="${desktopScreenshot.ogImage}" 
+                                     alt="Website Preview" 
+                                     class="og-image-fallback" 
+                                     style="width:100%;height:100%;object-fit:cover;border-radius:8px;position:absolute;top:0;left:0;z-index:1;" />
+                            ` : ''}
                             <iframe src="${desktopScreenshot.url}" 
                                     class="website-iframe"
                                     sandbox="allow-same-origin allow-scripts"
                                     loading="lazy"
-                                    onerror="this.style.display='none';this.nextElementSibling?.style.display='block';"></iframe>
-                            ${desktopScreenshot.ogImage ? `
-                                <img src="${desktopScreenshot.ogImage}" 
-                                     alt="Website Preview" 
-                                     class="og-image-fallback" 
-                                     style="display:none;width:100%;height:100%;object-fit:cover;border-radius:8px;" />
-                            ` : ''}
+                                    style="position:relative;z-index:2;background:white;"
+                                    onload="if(this.previousElementSibling) this.previousElementSibling.style.display='none';"></iframe>
                         </div>
                     </div>
                 </div>
@@ -801,18 +803,19 @@ function showMobilePreview(auditData = null) {
                         <div class="phone-screen">
                             ${mobileScreenshot ? (
                                 typeof mobileScreenshot === 'object' && mobileScreenshot.type === 'iframe' ? `
-                                    <div class="mobile-iframe-container">
-                                        <iframe src="${mobileScreenshot.url}" 
-                                                class="mobile-website-iframe"
-                                                sandbox="allow-same-origin allow-scripts"
-                                                loading="lazy"
-                                                onerror="this.style.display='none';this.nextElementSibling?.style.display='block';"></iframe>
+                                    <div class="mobile-iframe-container" ${mobileScreenshot.ogImage ? 'data-has-fallback="true"' : ''}>
                                         ${mobileScreenshot.ogImage ? `
                                             <img src="${mobileScreenshot.ogImage}" 
                                                  alt="Mobile Website Preview" 
                                                  class="og-image-fallback" 
-                                                 style="display:none;width:100%;height:100%;object-fit:cover;" />
+                                                 style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1;" />
                                         ` : ''}
+                                        <iframe src="${mobileScreenshot.url}" 
+                                                class="mobile-website-iframe"
+                                                sandbox="allow-same-origin allow-scripts"
+                                                loading="lazy"
+                                                style="position:relative;z-index:2;background:white;"
+                                                onload="if(this.previousElementSibling) this.previousElementSibling.style.display='none';"></iframe>
                                     </div>
                                 ` : `
                                     <img src="${mobileScreenshot}" alt="Mobile Website" class="mobile-screenshot-img" />
