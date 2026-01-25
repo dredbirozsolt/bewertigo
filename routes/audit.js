@@ -349,10 +349,10 @@ async function processAudit(auditId, placeDetails) {
 
                 if (screenshots.desktop || screenshots.mobile) {
                     if (screenshots.desktop) {
-                        console.log(`✅ Desktop screenshot captured (${Math.round(screenshots.desktop.length / 1024)}KB)`);
+                        console.log(`✅ Desktop screenshot captured (type: ${screenshots.desktop.type})`);
                     }
                     if (screenshots.mobile) {
-                        console.log(`✅ Mobile screenshot captured (${Math.round(screenshots.mobile.length / 1024)}KB)`);
+                        console.log(`✅ Mobile screenshot captured (type: ${screenshots.mobile.type})`);
                     }
 
                     // Update audit with screenshots immediately
