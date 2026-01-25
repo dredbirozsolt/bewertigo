@@ -47,28 +47,6 @@ class ScreenshotService {
     }
 
     /**
-     * Take screenshot of a website
-     * @param {string} url - Website URL
-     * @param {object} options - Screenshot options
-     * @returns {Promise<string>} Base64 encoded screenshot
-     */
-    async takeScreenshot(url, options = {}) {
-        const {
-            fullPage = false,
-            width = 1280,
-            height = 800,
-            timeout = 15000,
-            waitForSelector = null
-        } = options;
-
-        let page = null;
-
-        try {
-            console.log(`📸 Taking screenshot of ${url}...`);
-
-            const browser = await this.initBrowser();
-
-    /**
      * Get website preview data (URL for iframe + Open Graph image as fallback)
      * @param {string} url - Website URL
      * @param {object} options - Options
@@ -76,6 +54,8 @@ class ScreenshotService {
      */
     async takeScreenshot(url, options = {}) {
         try {
+            console.log(`📸 Generating preview for ${url}...`);
+            
             // Get Open Graph image as fallback
             const ogImage = await this.getOpenGraphImage(url);
 
@@ -125,28 +105,14 @@ class ScreenshotService {
         // No browser to close
         return Promise.resolve();
     }
-        if (this.browser) {
-            try {
-                await this.browser.close();
-                this.browser = null;
-                console.log('🔒 Browser closed');
-            } catch (error) {
-                console.error('Error closing browser:', error.message);
-            }
-        }
-    }
 
     /**
-     * Health check - ensures browser is working
+     * Health check
      */
     async healthCheck() {
         try {
-            const screenshot = await this.takeScreenshot('https://example.com', {
-                width: 800,
-                height: 600,
-                timeout: 10000
-            });
-            return !!screenshot;
+            const preview = await this.takeScreenshot('https://example.com');
+            return !!preview && preview.hasScreenshot;
         } catch (error) {
             console.error('Health check failed:', error.message);
             return false;

@@ -352,11 +352,15 @@ async function fetchAuditDataForAnimation(step) {
         const data = await response.json();
 
         if (data.success && data.audit) {
+            const screenshot = data.audit.rawData?.websiteScreenshot;
+            const screenshotPreview = screenshot 
+                ? (typeof screenshot === 'string' ? screenshot.substring(0, 50) + '...' : 'iframe-object')
+                : 'none';
+                
             console.log(`📊 Fetched audit data for step ${step}:`, {
                 hasRawData: !!data.audit.rawData,
-                hasScreenshot: !!data.audit.rawData?.websiteScreenshot,
-                screenshotPreview: data.audit.rawData?.websiteScreenshot ?
-                    data.audit.rawData.websiteScreenshot.substring(0, 50) + '...' : 'none'
+                hasScreenshot: !!screenshot,
+                screenshotPreview: screenshotPreview
             });
 
             // Call animation with full audit data
