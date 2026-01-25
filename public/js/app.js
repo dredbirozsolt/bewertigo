@@ -610,9 +610,11 @@ function renderDetailedResults(audit) {
                     <div class="info-item"><strong>Adresse:</strong> ${place.address || 'N/A'}</div>
                     <div class="info-item"><strong>Telefon:</strong> ${place.phone || 'Nicht hinterlegt'}</div>
                     <div class="info-item"><strong>Website:</strong> ${place.website ? `<a href="${place.website}" target="_blank">Zur Website</a>` : 'Nicht hinterlegt'}</div>
-                    <div class="info-item"><strong>Bewertung:</strong> ${place.rating ? `${place.rating} ⭐ (${place.reviewCount || 0} Bewertungen)` : 'Keine Bewertungen'}</div>
-                    <div class="info-item"><strong>Öffnungszeiten:</strong> ${place.openingHours ? 'Hinterlegt' : 'Nicht hinterlegt'}</div>
-                    <div class="info-item"><strong>Fotos:</strong> ${place.photoCount || 0} Bilder</div>
+                    <div class="info-item"><strong>Bewertung:</strong> ${place.rating ? `${place.rating} ⭐ (${place.totalReviews || place.reviewCount || 0} Bewertungen)` : 'Keine Bewertungen'}</div>
+                    ${place.openingHours && place.openingHours.weekday_text ? `
+                    <div class="info-item" style="grid-column: 1 / -1;"><strong>Öffnungszeiten:</strong><br>${place.openingHours.weekday_text.join('<br>')}</div>
+                    ` : `<div class="info-item"><strong>Öffnungszeiten:</strong> Nicht hinterlegt</div>`}
+                    <div class="info-item"><strong>Fotos:</strong> ${place.photoCount ? (place.photoCount >= 10 ? '10+ Bilder' : `${place.photoCount} Bilder`) : 'Keine Fotos'}</div>
                 </div>
             </div>
         `;

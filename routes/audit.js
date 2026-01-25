@@ -121,6 +121,11 @@ router.get('/status/:auditId', async (req, res) => {
                     description: audit.rawData.placeDetails.description,
                     location: audit.rawData.placeDetails.location,
                     name: audit.rawData.placeDetails.name,
+                    address: audit.rawData.placeDetails.address,
+                    businessType: audit.rawData.placeDetails.businessType,
+                    rating: audit.rawData.placeDetails.rating,
+                    totalReviews: audit.rawData.placeDetails.totalReviews,
+                    photoCount: audit.rawData.placeDetails.photoCount,
                     reviews: audit.rawData.placeDetails.reviews || []
                 } : null,
                 competitors: audit.rawData?.competitors || [],
@@ -142,6 +147,11 @@ router.get('/status/:auditId', async (req, res) => {
                         description: audit.rawData.placeDetails.description,
                         location: audit.rawData.placeDetails.location,
                         name: audit.rawData.placeDetails.name,
+                        address: audit.rawData.placeDetails.address,
+                        businessType: audit.rawData.placeDetails.businessType,
+                        rating: audit.rawData.placeDetails.rating,
+                        totalReviews: audit.rawData.placeDetails.totalReviews,
+                        photoCount: audit.rawData.placeDetails.photoCount,
                         reviews: audit.rawData.placeDetails.reviews || []
                     } : null,
                     competitors: audit.rawData?.competitors || []

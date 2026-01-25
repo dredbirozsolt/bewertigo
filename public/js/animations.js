@@ -29,7 +29,7 @@ function showVisualFeedback(step, auditData = null) {
             showGoogleProfile(auditData?.placeDetails);
             break;
         case 3:
-            showReviewBubbles(auditData?.placeDetails?.reviews);
+            showReviewBubbles(auditData?.placeDetails);
             break;
         case 4:
             showWebsiteSpeed(auditData);
@@ -412,8 +412,10 @@ function showGoogleProfile(placeData = null) {
 /**
  * Step 3: Review bubbles with realistic flow
  */
-function showReviewBubbles(realReviews = null) {
-    console.log('⭐ Step 3: showReviewBubbles called', realReviews ? `with ${realReviews.length} reviews` : 'NO REVIEWS');
+function showReviewBubbles(placeDetails = null) {
+    const realReviews = placeDetails?.reviews || [];
+    const totalReviewCount = placeDetails?.totalReviews || realReviews.length;
+    console.log('⭐ Step 3: showReviewBubbles called', placeDetails ? `with ${realReviews.length} reviews (total: ${totalReviewCount})` : 'NO REVIEWS');
     const visualDiv = document.getElementById('visual-feedback');
 
     // Use real reviews if available, otherwise fallback to dummy data
