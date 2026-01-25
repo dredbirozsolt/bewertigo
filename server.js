@@ -13,10 +13,10 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-            "script-src": ["'self'", "'unsafe-inline'", "https://maps.googleapis.com"],
+            "script-src": ["'self'", "'unsafe-inline'", "https://maps.googleapis.com", "https://maps.gstatic.com"],
             "img-src": ["'self'", "data:", "https://maps.googleapis.com", "https://maps.gstatic.com", "https://lh3.googleusercontent.com"],
             "frame-src": ["'self'", "https:", "http:"],
-            "connect-src": ["'self'", "https://maps.googleapis.com"],
+            "connect-src": ["'self'", "https://maps.googleapis.com", "https://maps.gstatic.com"],
             "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             "font-src": ["'self'", "https://fonts.gstatic.com"]
         }
