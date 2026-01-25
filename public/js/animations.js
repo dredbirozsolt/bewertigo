@@ -54,9 +54,16 @@ function showCompetitorMap(auditData = null) {
     visualDiv.innerHTML = `
         <div class="animation-container">
             <h3>🗺️ Scanning competitors in your area...</h3>
+            <div id="search-radius-status" class="search-radius">
+                <div class="radius-indicator">
+                    <span class="radius-icon">📍</span>
+                    <span id="current-radius">1.5</span> km radius
+                </div>
+            </div>
             <div id="live-competitor-map" class="live-map-container"></div>
             <div class="competitors-status">
                 <span id="competitors-found">0</span> competitors found
+                <span id="search-status" class="search-status-text"></span>
             </div>
         </div>
     `;
@@ -72,12 +79,47 @@ function showCompetitorMap(auditData = null) {
             overflow: hidden;
             box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         }
+        .search-radius {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .radius-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            animation: pulse-radius 2s ease-in-out infinite;
+        }
+        .radius-icon {
+            font-size: 1.1rem;
+        }
+        #current-radius {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
         .competitors-status {
             text-align: center;
             font-size: 1.1rem;
             color: #6366f1;
             font-weight: 600;
             margin-top: 15px;
+        }
+        .search-status-text {
+            display: block;
+            font-size: 0.85rem;
+            color: #f97316;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+        @keyframes pulse-radius {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         @media (max-width: 768px) {
             .live-map-container {
@@ -95,12 +137,56 @@ function showCompetitorMap(auditData = null) {
         competitorsLength: auditData?.competitors?.length
     });
 
+    // Simulate expanding search radius animation (shows the search process)
+    if (!auditData?.competitors) {
+        simulateRadiusExpansion();
+    }
+
     // Initialize map if we have data
     if (auditData?.placeDetails?.location && auditData?.competitors) {
         console.log('✅ Initializing live competitor map');
+        // Show final radius based on competitor count
+        const finalRadius = auditData.competitors.length >= 3 ? '3.0' : '5.0';
+        updateRadiusDisplay(finalRadius, `✓ ${auditData.competitors.length} found`);
         initLiveCompetitorMap(auditData);
     } else {
         console.log('❌ Cannot initialize map - missing data');
+    }
+}
+
+/**
+ * Simulate search radius expansion (visual feedback while backend searches)
+ */
+function simulateRadiusExpansion() {
+    const radiusElement = document.getElementById('current-radius');
+    const statusElement = document.getElementById('search-status');
+    if (!radiusElement || !statusElement) return;
+
+    const radiusSteps = [
+        { radius: '1.5', delay: 1000, status: 'Searching...' },
+        { radius: '3.0', delay: 2500, status: 'Expanding radius...' },
+        { radius: '5.0', delay: 4000, status: 'Broader search...' }
+    ];
+
+    radiusSteps.forEach(step => {
+        setTimeout(() => {
+            updateRadiusDisplay(step.radius, step.status);
+        }, step.delay);
+    });
+}
+
+/**
+ * Update radius display
+ */
+function updateRadiusDisplay(radius, status) {
+    const radiusElement = document.getElementById('current-radius');
+    const statusElement = document.getElementById('search-status');
+    
+    if (radiusElement) {
+        radiusElement.textContent = radius;
+    }
+    if (statusElement && status) {
+        statusElement.textContent = status;
     }
 }
 
@@ -157,11 +243,17 @@ async function initLiveCompetitorMap(auditData) {
             map.setZoom(14);
         }
 
-        // Draw 3km radius circle
+        // Draw search radius circle (dynamic based on where competitors were found)
+        // Estimate radius: if 1-2 competitors within close range, show 1.5km, otherwise 3km or 5km
+        const maxDistance = competitors.length > 0 
+            ? Math.max(...competitors.map(c => c.distance)) 
+            : 3;
+        const searchRadius = maxDistance <= 2 ? 1500 : (maxDistance <= 4 ? 3000 : 5000);
+        
         new google.maps.Circle({
             map: map,
             center: businessLocation,
-            radius: 3000,
+            radius: searchRadius,
             fillColor: '#6366f1',
             fillOpacity: 0.08,
             strokeColor: '#6366f1',
