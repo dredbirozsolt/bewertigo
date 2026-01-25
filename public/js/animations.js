@@ -636,18 +636,17 @@ function showWebsiteSpeed(auditData = null) {
                     <div class="screenshot-device desktop">
                         <div class="screenshot-label">💻 Desktop Preview</div>
                         <div class="iframe-container">
+                            <iframe src="${desktopScreenshot.url}" 
+                                    class="website-iframe"
+                                    sandbox="allow-same-origin allow-scripts"
+                                    loading="lazy"
+                                    onerror="this.style.display='none';this.nextElementSibling?.style.display='block';"></iframe>
                             ${desktopScreenshot.ogImage ? `
                                 <img src="${desktopScreenshot.ogImage}" 
                                      alt="Website Preview" 
-                                     class="og-image-preview" 
-                                     style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />
-                            ` : `
-                                <iframe src="${desktopScreenshot.url}" 
-                                        class="website-iframe"
-                                        sandbox="allow-same-origin allow-scripts"
-                                        loading="lazy"
-                                        style="position:absolute;top:0;left:0;"></iframe>
-                            `}
+                                     class="og-image-fallback" 
+                                     style="display:none;width:100%;height:100%;object-fit:cover;border-radius:8px;" />
+                            ` : ''}
                         </div>
                     </div>
                 </div>
@@ -801,24 +800,24 @@ function showMobilePreview(auditData = null) {
                         <div class="phone-notch"></div>
                         <div class="phone-screen">
                             ${mobileScreenshot ? (
-            typeof mobileScreenshot === 'object' && mobileScreenshot.type === 'iframe' ? `
+                                typeof mobileScreenshot === 'object' && mobileScreenshot.type === 'iframe' ? `
                                     <div class="mobile-iframe-container">
+                                        <iframe src="${mobileScreenshot.url}" 
+                                                class="mobile-website-iframe"
+                                                sandbox="allow-same-origin allow-scripts"
+                                                loading="lazy"
+                                                onerror="this.style.display='none';this.nextElementSibling?.style.display='block';"></iframe>
                                         ${mobileScreenshot.ogImage ? `
                                             <img src="${mobileScreenshot.ogImage}" 
                                                  alt="Mobile Website Preview" 
-                                                 class="mobile-screenshot-img" 
-                                                 style="width:100%;height:100%;object-fit:cover;" />
-                                        ` : `
-                                            <iframe src="${mobileScreenshot.url}" 
-                                                    class="mobile-website-iframe"
-                                                    sandbox="allow-same-origin allow-scripts"
-                                                    loading="lazy"></iframe>
-                                        `}
+                                                 class="og-image-fallback" 
+                                                 style="display:none;width:100%;height:100%;object-fit:cover;" />
+                                        ` : ''}
                                     </div>
                                 ` : `
                                     <img src="${mobileScreenshot}" alt="Mobile Website" class="mobile-screenshot-img" />
                                 `
-        ) : `
+                            ) : `
                                 <div class="screen-content">
                                     <div class="mock-header"></div>
                                     <div class="mock-button"></div>
