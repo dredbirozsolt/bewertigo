@@ -728,33 +728,63 @@ function renderDetailedResults(audit) {
     }
 
     // Website Performance Details
-    if (audit.rawData?.pageSpeedData || audit.rawData?.websiteScreenshot) {
+    if (audit.rawData?.pageSpeedData || audit.rawData?.websiteScreenshotDesktop || audit.rawData?.websiteScreenshotMobile) {
         const ps = audit.rawData.pageSpeedData;
+        const desktopScreenshot = audit.rawData.websiteScreenshotDesktop;
+        const mobileScreenshot = audit.rawData.websiteScreenshotMobile;
+        
         html += `<div class="info-section"><h2>🚀 Website Performance</h2>`;
 
-        // Show screenshot (from Puppeteer or PageSpeed)
-        const screenshot = audit.rawData.websiteScreenshot || ps?.desktop?.screenshot || ps?.mobile?.screenshot;
-        if (screenshot) {
-            html += `
-                <div class="website-screenshot">
-                    <h3>📸 Website-Vorschau</h3>
-                    <img src="${screenshot}" alt="Website Screenshot" class="screenshot-img" />
-                </div>
-            `;
+        // Show screenshots (iframe previews)
+        if (desktopScreenshot?.url || mobileScreenshot?.url) {
+            html += `<div class="screenshots-grid">`;
+            
+            if (desktopScreenshot?.url) {
+                html += `
+                    <div class="screenshot-card">
+                        <h3>💻 Desktop Preview</h3>
+                        ${desktopScreenshot.type === 'iframe' ? 
+                            `<iframe src="${desktopScreenshot.url}" class="screenshot-iframe" sandbox="allow-scripts allow-same-origin"></iframe>` :
+                            desktopScreenshot.ogImage ? 
+                                `<img src="${desktopScreenshot.ogImage}" alt="Desktop Screenshot" class="screenshot-img" />` :
+                                `<div class="screenshot-placeholder">Vorschau nicht verfügbar</div>`
+                        }
+                    </div>
+                `;
+            }
+            
+            if (mobileScreenshot?.url) {
+                html += `
+                    <div class="screenshot-card mobile">
+                        <h3>📱 Mobile Preview</h3>
+                        ${mobileScreenshot.type === 'iframe' ? 
+                            `<iframe src="${mobileScreenshot.url}" class="screenshot-iframe mobile-view" sandbox="allow-scripts allow-same-origin"></iframe>` :
+                            mobileScreenshot.ogImage ? 
+                                `<img src="${mobileScreenshot.ogImage}" alt="Mobile Screenshot" class="screenshot-img" />` :
+                                `<div class="screenshot-placeholder">Vorschau nicht verfügbar</div>`
+                        }
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
         }
 
-        // Show PageSpeed metrics only if available
-        if (ps?.desktop?.metrics || ps?.mobile?.metrics) {
+        // Show PageSpeed metrics only if available (check if metrics have actual data)
+        const hasDesktopMetrics = ps?.desktop?.metrics && Object.keys(ps.desktop.metrics).length > 0;
+        const hasMobileMetrics = ps?.mobile?.metrics && Object.keys(ps.mobile.metrics).length > 0;
+        
+        if (hasDesktopMetrics || hasMobileMetrics) {
             html += `<div class="performance-grid">`;
 
-            if (ps.desktop?.metrics) {
+            if (hasDesktopMetrics) {
                 html += `<div class="performance-card"><h3>💻 Desktop</h3>
                     <div class="metric"><span>LCP:</span><strong>${ps.desktop.metrics.lcp ? ps.desktop.metrics.lcp.toFixed(2) + 's' : 'N/A'}</strong></div>
                     <div class="metric"><span>FCP:</span><strong>${ps.desktop.metrics.fcp ? ps.desktop.metrics.fcp.toFixed(2) + 's' : 'N/A'}</strong></div>
                 </div>`;
             }
 
-            if (ps.mobile?.metrics) {
+            if (hasMobileMetrics) {
                 html += `<div class="performance-card"><h3>📱 Mobile</h3>
                     <div class="metric"><span>LCP:</span><strong>${ps.mobile.metrics.lcp ? ps.mobile.metrics.lcp.toFixed(2) + 's' : 'N/A'}</strong></div>
                     <div class="metric"><span>CLS:</span><strong>${ps.mobile.metrics.cls !== undefined ? ps.mobile.metrics.cls.toFixed(3) : 'N/A'}</strong></div>
@@ -767,6 +797,15 @@ function renderDetailedResults(audit) {
             }
 
             html += `</div>`;
+        } else if (!desktopScreenshot?.url && !mobileScreenshot?.url) {
+            // If no metrics AND no screenshots, show a message
+            html += `
+                <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">⚡</div>
+                    <p>Website-Performance-Daten werden derzeit nicht erfasst.</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">Schnellere Analyse aktiviert für bessere Benutzererfahrung.</p>
+                </div>
+            `;
         }
 
         html += `</div>`;
