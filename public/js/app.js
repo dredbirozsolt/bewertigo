@@ -314,7 +314,7 @@ function startProgressPolling() {
         } catch (error) {
             console.error('Progress polling error:', error);
         }
-    }, 2000); // Poll every 2 seconds
+    }, 1000); // Poll every 1 second (faster to catch all steps)
 }
 
 /**
