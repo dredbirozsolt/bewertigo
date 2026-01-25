@@ -268,7 +268,10 @@ async function processAudit(auditId, placeDetails) {
     let audit = await Audit.findByPk(auditId);
 
     try {
-        // Step 1: Find competitors FIRST (before progress update)
+        // Step 1: Update progress IMMEDIATELY so frontend sees it
+        await updateProgress(audit, 1, 'Vergleich mit Konkurrenten...');
+
+        // Find competitors (this can take 5-15 seconds)
         const competitors = await googlePlaces.findNearbyCompetitors(
             placeDetails.location,
             placeDetails.types || [placeDetails.businessType], // Pass all types for better matching
@@ -277,16 +280,13 @@ async function processAudit(auditId, placeDetails) {
             placeDetails.name // Pass business name for keyword detection
         );
 
-        // Save placeDetails + competitors BEFORE showing Step 1
+        // Save placeDetails + competitors for Step 1 data
         await audit.update({
             rawData: {
                 placeDetails,
                 competitors
             }
         });
-
-        // NOW show Step 1 (frontend will see the data)
-        await updateProgress(audit, 1, 'Vergleich mit Konkurrenten...');
 
         // Extra delay for Step 1 to let users see competitor map animation
         // Competitors appear: business (500ms), comp1 (1500ms), comp2 (2500ms), comp3 (3500ms)
