@@ -25,10 +25,18 @@ class CacheService {
 
     /**
      * Check if audit is cached and still valid (within 48 hours)
+     * Only return true if audit is COMPLETED
      */
     hasValidCache(placeId) {
         const cached = this.getAuditByPlaceId(placeId);
         if (!cached) return false;
+
+        // CRITICAL: Only cache completed audits!
+        if (cached.status !== 'completed') {
+            // Clear incomplete audit from cache
+            this.clearPlace(placeId);
+            return false;
+        }
 
         const now = new Date();
         const cacheAge = (now - new Date(cached.createdAt)) / 1000; // in seconds
