@@ -814,23 +814,49 @@ function renderDetailedResults(audit) {
     // Social Media Profiles
     if (audit.rawData?.socialProfiles) {
         const social = audit.rawData.socialProfiles;
-        html += `<div class="info-section"><h2>📱 Social Media Präsenz</h2><div class="social-grid">`;
+        const hasFacebook = social.facebook && typeof social.facebook === 'object';
+        const hasInstagram = social.instagram && typeof social.instagram === 'object';
+        const hasTikTok = social.tiktok && typeof social.tiktok === 'object';
+        
+        // Only show section if at least one profile has data
+        if (hasFacebook || hasInstagram || hasTikTok) {
+            html += `<div class="info-section"><h2>📱 Social Media Präsenz</h2><div class="social-grid">`;
 
-        if (social.facebook) {
-            html += `<div class="social-card"><h3>Facebook</h3>
-                <div class="social-status ${social.facebook.exists ? 'active' : 'inactive'}">${social.facebook.exists ? '✓ Aktiv' : '✗ Nicht gefunden'}</div>
-                ${social.facebook.lastPost ? `<p>Letzter Post: ${social.facebook.lastPost}</p>` : ''}
-            </div>`;
+            if (hasFacebook) {
+                html += `<div class="social-card"><h3>Facebook</h3>
+                    <div class="social-status ${social.facebook.exists ? 'active' : 'inactive'}">${social.facebook.exists ? '✓ Aktiv' : '✗ Nicht gefunden'}</div>
+                    ${social.facebook.lastPost ? `<p>Letzter Post: ${social.facebook.lastPost}</p>` : ''}
+                </div>`;
+            }
+
+            if (hasInstagram) {
+                html += `<div class="social-card"><h3>Instagram</h3>
+                    <div class="social-status ${social.instagram.exists ? 'active' : 'inactive'}">${social.instagram.exists ? '✓ Aktiv' : '✗ Nicht gefunden'}</div>
+                    ${social.instagram.lastPost ? `<p>Letzter Post: ${social.instagram.lastPost}</p>` : ''}
+                </div>`;
+            }
+            
+            if (hasTikTok) {
+                html += `<div class="social-card"><h3>TikTok</h3>
+                    <div class="social-status ${social.tiktok.exists ? 'active' : 'inactive'}">${social.tiktok.exists ? '✓ Aktiv' : '✗ Nicht gefunden'}</div>
+                    ${social.tiktok.lastPost ? `<p>Letzter Post: ${social.tiktok.lastPost}</p>` : ''}
+                </div>`;
+            }
+
+            html += `</div></div>`;
+        } else {
+            // No social profiles found
+            html += `
+                <div class="info-section">
+                    <h2>📱 Social Media Präsenz</h2>
+                    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                        <div style="font-size: 3rem; margin-bottom: 15px;">📱</div>
+                        <p>Keine Social Media Profile gefunden.</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">Instagram und TikTok konnten nicht automatisch erkannt werden.</p>
+                    </div>
+                </div>
+            `;
         }
-
-        if (social.instagram) {
-            html += `<div class="social-card"><h3>Instagram</h3>
-                <div class="social-status ${social.instagram.exists ? 'active' : 'inactive'}">${social.instagram.exists ? '✓ Aktiv' : '✗ Nicht gefunden'}</div>
-                ${social.instagram.lastPost ? `<p>Letzter Post: ${social.instagram.lastPost}</p>` : ''}
-            </div>`;
-        }
-
-        html += `</div></div>`;
     }
 
     // Show top issues
