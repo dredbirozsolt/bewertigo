@@ -34,7 +34,16 @@ const limiter = rateLimit({
     max: process.env.API_RATE_LIMIT || 100,
     message: 'Zu viele Anfragen von dieser IP, bitte versuchen Sie es später erneut.'
 });
-app.use('/api/', limiter);
+
+// Higher rate limit for status polling endpoint (1 req/sec × 60 sec × 15 min = 900)
+const statusLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 2000, // Allow frequent polling during audit processing
+    message: 'Zu viele Status-Abfragen, bitte versuchen Sie es später erneut.'
+});
+
+app.use('/api/audit/status', statusLimiter); // Apply higher limit to status endpoint
+app.use('/api/', limiter); // Apply normal limit to other endpoints
 
 // Body parser
 app.use(express.json());
