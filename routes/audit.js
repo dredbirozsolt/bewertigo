@@ -300,15 +300,21 @@ async function processAudit(auditId, placeDetails) {
 
         // Find competitors (this can take 5-15 seconds)
         console.log('🔍 Starting competitor search...');
-        const competitors = await googlePlaces.findNearbyCompetitors(
-            placeDetails.location,
-            placeDetails.types || [placeDetails.businessType], // Pass all types for better matching
-            1500, // Reduced radius: 1.5km for local competitors
-            placeDetails.placeId,
-            placeDetails.name // Pass business name for keyword detection
-        );
-
-        console.log(`✅ Competitor search complete. Found ${competitors.length} competitors`);
+        let competitors = [];
+        try {
+            competitors = await googlePlaces.findNearbyCompetitors(
+                placeDetails.location,
+                placeDetails.types || [placeDetails.businessType], // Pass all types for better matching
+                1500, // Reduced radius: 1.5km for local competitors
+                placeDetails.placeId,
+                placeDetails.name // Pass business name for keyword detection
+            );
+            console.log(`✅ Competitor search complete. Found ${competitors.length} competitors`);
+        } catch (error) {
+            console.error('❌ Competitor search failed:', error.message);
+            console.log('Continuing without competitors...');
+            competitors = [];
+        }
 
         // Save placeDetails + competitors for Step 1 data
         console.log('💾 Saving placeDetails and competitors to rawData...');
