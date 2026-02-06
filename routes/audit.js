@@ -296,6 +296,13 @@ async function processAudit(auditId, placeDetails) {
         });
 
         // Step 1: Update progress IMMEDIATELY so frontend sees it
+        // IMPORTANT: Save placeDetails FIRST so frontend can show map while competitors load
+        await audit.update({
+            rawData: {
+                placeDetails,
+                competitors: [] // Empty initially, will be updated after search
+            }
+        });
         await updateProgress(audit, 1, 'Vergleich mit Konkurrenten...');
 
         // Find competitors (this can take 5-15 seconds)
