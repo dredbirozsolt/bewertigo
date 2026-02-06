@@ -25,7 +25,10 @@ class GooglePlacesService {
                 params.radius = radius;
             }
 
-            const response = await axios.get(`${this.baseUrl}/autocomplete/json`, { params });
+            const response = await axios.get(`${this.baseUrl}/autocomplete/json`, { 
+                params,
+                timeout: 5000 // 5 second timeout
+            });
 
             if (response.data.status !== 'OK' && response.data.status !== 'ZERO_RESULTS') {
                 throw new Error(`Google Places API Error: ${response.data.status}`);
@@ -74,7 +77,10 @@ class GooglePlacesService {
                 ].join(',')
             };
 
-            const response = await axios.get(`${this.baseUrl}/details/json`, { params });
+            const response = await axios.get(`${this.baseUrl}/details/json`, { 
+                params,
+                timeout: 10000 // 10 second timeout
+            });
 
             if (response.data.status !== 'OK') {
                 throw new Error(`Place Details Error: ${response.data.status}`);
@@ -239,7 +245,10 @@ class GooglePlacesService {
 
                 console.log('API Request params:', JSON.stringify(params, null, 2));
 
-                const response = await axios.get(`${this.baseUrl}/nearbysearch/json`, { params });
+                const response = await axios.get(`${this.baseUrl}/nearbysearch/json`, { 
+                    params,
+                    timeout: 10000 // 10 second timeout
+                });
 
                 console.log(`API Response status: ${response.data.status}`);
 
