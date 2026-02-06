@@ -199,7 +199,14 @@ async function initLiveCompetitorMap(auditData) {
 
     try {
         // Ensure Google Maps is loaded
-        await loadGoogleMapsAPI();
+        try {
+            await loadGoogleMapsAPI();
+        } catch (mapsError) {
+            console.error('❌ Google Maps failed to load:', mapsError);
+            // Show error message in map container
+            mapContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">Karte konnte nicht geladen werden</div>';
+            return;
+        }
 
         const businessLocation = auditData.placeDetails.location;
         const businessName = auditData.placeDetails.name;
