@@ -108,6 +108,8 @@ router.get('/status/:auditId', async (req, res) => {
         // CRITICAL FIX: Query DB again to bypass Sequelize instance cache
         // This ensures we get fresh data even across multiple worker processes
         audit = await Audit.findByPk(req.params.auditId);
+
+        res.json({
             success: true,
             audit: {
                 _id: audit._id,
