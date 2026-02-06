@@ -14,6 +14,7 @@ app.use(helmet({
         directives: {
             ...helmet.contentSecurityPolicy.getDefaultDirectives(),
             "script-src": ["'self'", "'unsafe-inline'", "https://maps.googleapis.com", "https://maps.gstatic.com"],
+            "script-src-attr": ["'unsafe-inline'"], // Allow inline event handlers
             "img-src": ["'self'", "data:", "https:", "http:", "https://maps.googleapis.com", "https://maps.gstatic.com", "https://lh3.googleusercontent.com"],
             "frame-src": ["'self'", "https:", "http:"],
             "connect-src": ["'self'", "https://maps.googleapis.com", "https://maps.gstatic.com"],
