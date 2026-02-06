@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Audit = require('../models/Audit');
+const { sequelize } = require('../config/database'); // Import sequelize for raw queries
 const googlePlaces = require('../services/googlePlaces');
 const pageSpeed = require('../services/pageSpeed');
 const screenshotService = require('../services/screenshot');
@@ -95,19 +96,24 @@ router.post('/start', async (req, res) => {
  */
 router.get('/status/:auditId', async (req, res) => {
     try {
-        // Force fresh data from DB with no cache - query twice to bypass all caching
-        let audit = await Audit.findByPk(req.params.auditId);
+        // CRITICAL FIX: Use RAW SQL query to completely bypass Sequelize cache
+        // This is necessary because Sequelize model cache persists across worker processes
+        const results = await sequelize.query(
+            'SELECT * FROM audits WHERE id = ? LIMIT 1',
+            {
+                replacements: [req.params.auditId],
+                type: sequelize.QueryTypes.SELECT
+            }
+        );
 
-        if (!audit) {
+        if (!results || results.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Audit nicht gefunden'
             });
         }
         
-        // CRITICAL FIX: Query DB again to bypass Sequelize instance cache
-        // This ensures we get fresh data even across multiple worker processes
-        audit = await Audit.findByPk(req.params.auditId);
+        const audit = results[0]; // Get first result from array
 
         res.json({
             success: true,
