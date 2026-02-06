@@ -546,6 +546,8 @@ async function processAudit(auditId, placeDetails) {
         );
 
         // Update audit with results
+        console.log(`📝 BEFORE final update - Audit ID: ${audit.id}, Status: ${audit.status}`);
+        
         await audit.update({
             totalScore: totalScore,
             scores: {
@@ -569,9 +571,13 @@ async function processAudit(auditId, placeDetails) {
             status: 'completed',
             completedAt: new Date()
         });
+        
+        console.log(`📝 AFTER update - Audit ID: ${audit.id}, Status: ${audit.status}`);
 
         // Reload audit to get updated data
         await audit.reload();
+        
+        console.log(`📝 AFTER reload - Audit ID: ${audit.id}, Status: ${audit.status}, Score: ${totalScore}`);
 
         // Cache the result - DISABLED
         // cacheService.setAudit(placeDetails.placeId, audit.get({ plain: true }));
