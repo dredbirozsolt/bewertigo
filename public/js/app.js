@@ -271,7 +271,14 @@ function startProgressPolling() {
 
     pollInterval = setInterval(async () => {
         try {
-            const response = await fetch(`${API_BASE}/audit/status/${currentAuditId}`);
+            // CRITICAL: Disable caching to always get fresh status from server
+            const response = await fetch(`${API_BASE}/audit/status/${currentAuditId}`, {
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache'
+                }
+            });
             const data = await response.json();
 
             if (!data.success) {
