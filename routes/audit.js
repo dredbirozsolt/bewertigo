@@ -28,17 +28,17 @@ router.post('/start', async (req, res) => {
             });
         }
 
-        // Check cache first (48-hour window)
-        const cachedAudit = cacheService.getAuditByPlaceId(placeId);
-        if (cachedAudit && cacheService.hasValidCache(placeId)) {
-            console.log(`Returning cached audit for ${placeId}`);
-            return res.json({
-                success: true,
-                cached: true,
-                auditId: cachedAudit.id,
-                message: 'Audit bereits in den letzten 48 Stunden durchgeführt'
-            });
-        }
+        // Check cache first (48-hour window) - DISABLED
+        // const cachedAudit = cacheService.getAuditByPlaceId(placeId);
+        // if (cachedAudit && cacheService.hasValidCache(placeId)) {
+        //     console.log(`Returning cached audit for ${placeId}`);
+        //     return res.json({
+        //         success: true,
+        //         cached: true,
+        //         auditId: cachedAudit.id,
+        //         message: 'Audit bereits in den letzten 48 Stunden durchgeführt'
+        //     });
+        // }
 
         // Get basic place details first (this is quick)
         console.log(`📍 Fetching place details for ${placeId}...`);
@@ -560,8 +560,8 @@ async function processAudit(auditId, placeDetails) {
         // Reload audit to get updated data
         await audit.reload();
 
-        // Cache the result
-        cacheService.setAudit(placeDetails.placeId, audit.get({ plain: true }));
+        // Cache the result - DISABLED
+        // cacheService.setAudit(placeDetails.placeId, audit.get({ plain: true }));
 
         console.log(`✅ Audit completed for ${placeDetails.name}: ${totalScore}/100`);
 

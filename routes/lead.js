@@ -145,7 +145,8 @@ router.post('/manual-social', async (req, res) => {
             });
         }
 
-        const audit = await Audit.findByPk(auditId);
+        // const audit = await Audit.findByPk(auditId);
+        const audit = null;
         if (!audit) {
             return res.status(404).json({
                 success: false,
