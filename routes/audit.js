@@ -95,7 +95,10 @@ router.post('/start', async (req, res) => {
  */
 router.get('/status/:auditId', async (req, res) => {
     try {
-        const audit = await Audit.findByPk(req.params.auditId);
+        // Force fresh data from DB (bypass Sequelize cache across worker processes)
+        const audit = await Audit.findByPk(req.params.auditId, {
+            raw: false // We need the instance for methods
+        });
 
         if (!audit) {
             return res.status(404).json({
@@ -103,6 +106,9 @@ router.get('/status/:auditId', async (req, res) => {
                 message: 'Audit nicht gefunden'
             });
         }
+        
+        // Reload to ensure absolutely fresh data from database
+        await audit.reload();
 
         res.json({
             success: true,
