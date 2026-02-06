@@ -95,10 +95,8 @@ router.post('/start', async (req, res) => {
  */
 router.get('/status/:auditId', async (req, res) => {
     try {
-        // Force fresh data from DB (bypass Sequelize cache across worker processes)
-        const audit = await Audit.findByPk(req.params.auditId, {
-            raw: false // We need the instance for methods
-        });
+        // Force fresh data from DB with no cache - query twice to bypass all caching
+        let audit = await Audit.findByPk(req.params.auditId);
 
         if (!audit) {
             return res.status(404).json({
@@ -107,10 +105,9 @@ router.get('/status/:auditId', async (req, res) => {
             });
         }
         
-        // Reload to ensure absolutely fresh data from database
-        await audit.reload();
-
-        res.json({
+        // CRITICAL FIX: Query DB again to bypass Sequelize instance cache
+        // This ensures we get fresh data even across multiple worker processes
+        audit = await Audit.findByPk(req.params.auditId);
             success: true,
             audit: {
                 _id: audit._id,
@@ -553,7 +550,7 @@ async function processAudit(auditId, placeDetails) {
 
         // Update audit with results
         console.log(`📝 BEFORE final update - Audit ID: ${audit.id}, Status: ${audit.status}`);
-        
+
         await audit.update({
             totalScore: totalScore,
             scores: {
@@ -577,12 +574,12 @@ async function processAudit(auditId, placeDetails) {
             status: 'completed',
             completedAt: new Date()
         });
-        
+
         console.log(`📝 AFTER update - Audit ID: ${audit.id}, Status: ${audit.status}`);
 
         // Reload audit to get updated data
         await audit.reload();
-        
+
         console.log(`📝 AFTER reload - Audit ID: ${audit.id}, Status: ${audit.status}, Score: ${totalScore}`);
 
         // Cache the result - DISABLED
