@@ -25,7 +25,7 @@ class GooglePlacesService {
                 params.radius = radius;
             }
 
-            const response = await axios.get(`${this.baseUrl}/autocomplete/json`, { 
+            const response = await axios.get(`${this.baseUrl}/autocomplete/json`, {
                 params,
                 timeout: 5000 // 5 second timeout
             });
@@ -77,7 +77,7 @@ class GooglePlacesService {
                 ].join(',')
             };
 
-            const response = await axios.get(`${this.baseUrl}/details/json`, { 
+            const response = await axios.get(`${this.baseUrl}/details/json`, {
                 params,
                 timeout: 10000 // 10 second timeout
             });
@@ -245,7 +245,7 @@ class GooglePlacesService {
 
                 console.log('API Request params:', JSON.stringify(params, null, 2));
 
-                const response = await axios.get(`${this.baseUrl}/nearbysearch/json`, { 
+                const response = await axios.get(`${this.baseUrl}/nearbysearch/json`, {
                     params,
                     timeout: 10000 // 10 second timeout
                 });

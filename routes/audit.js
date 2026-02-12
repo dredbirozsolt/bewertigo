@@ -112,7 +112,7 @@ router.get('/status/:auditId', async (req, res) => {
                 message: 'Audit nicht gefunden'
             });
         }
-        
+
         const audit = results[0]; // Get first result from array
 
         res.json({
